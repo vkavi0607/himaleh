@@ -59,16 +59,41 @@ object ReminderScheduler {
 
         val alarmManager = context.getSystemService(Context.ALARM_SERVICE) as? AlarmManager ?: return
 
-        // Calculate next trigger time
+        // Calculate next trigger time accounting for recurrence and scheduled days
         val now = LocalDateTime.now()
-        var targetTime = LocalDateTime.of(
-            LocalDate.now(),
-            LocalTime.of(routine.timeHour.coerceIn(0, 23), routine.timeMinute.coerceIn(0, 59))
-        )
+        val routineHour = routine.timeHour.coerceIn(0, 23)
+        val routineMinute = routine.timeMinute.coerceIn(0, 59)
 
-        // If target time today has already passed, schedule for tomorrow
-        if (targetTime.isBefore(now)) {
-            targetTime = targetTime.plusDays(1)
+        // Parse scheduled days (1=Monday ... 7=Sunday)
+        val scheduledDays = when (routine.frequency) {
+            com.example.data.model.RoutineFrequency.DAILY -> setOf(1, 2, 3, 4, 5, 6, 7)
+            com.example.data.model.RoutineFrequency.WEEKDAYS -> setOf(1, 2, 3, 4, 5)
+            else -> {
+                routine.frequencyDays.split(",")
+                    .mapNotNull { it.trim().toIntOrNull() }
+                    .toSet()
+                    .ifEmpty { setOf(1, 2, 3, 4, 5, 6, 7) }
+            }
+        }
+
+        var candidateDate = LocalDate.now()
+        var targetTime: LocalDateTime? = null
+
+        for (dayOffset in 0..14) {
+            val checkDate = candidateDate.plusDays(dayOffset.toLong())
+            val dayOfWeekIso = checkDate.dayOfWeek.value // 1=Mon ... 7=Sun
+            if (scheduledDays.contains(dayOfWeekIso)) {
+                val checkTime = LocalDateTime.of(checkDate, LocalTime.of(routineHour, routineMinute))
+                if (checkTime.isAfter(now)) {
+                    targetTime = checkTime
+                    break
+                }
+            }
+        }
+
+        if (targetTime == null) {
+            // Fallback to tomorrow at scheduled time
+            targetTime = LocalDateTime.of(LocalDate.now().plusDays(1), LocalTime.of(routineHour, routineMinute))
         }
 
         val triggerMillis = targetTime.atZone(ZoneId.systemDefault()).toInstant().toEpochMilli()

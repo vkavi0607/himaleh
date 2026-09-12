@@ -212,6 +212,30 @@ export const CelebrationModal: React.FC<CelebrationModalProps> = ({ event, onDis
               </>
             )}
 
+            {event.type === 'MILESTONE_UNLOCKED' && (
+              <>
+                <div className="space-y-1.5">
+                  <span className="text-[11px] font-black uppercase tracking-[0.25em] text-amber-600 dark:text-amber-400 flex items-center justify-center gap-1.5">
+                    <Sparkles className="h-3.5 w-3.5 text-amber-500 animate-spin" />
+                    Himaleh • Milestone Achieved
+                  </span>
+                  <h2 className="text-2xl font-black tracking-tight text-slate-900 dark:text-slate-50 font-serif">
+                    {event.milestoneTitle}
+                  </h2>
+                  <p className="text-sm text-slate-600 dark:text-slate-400 max-w-xs">
+                    {event.description}
+                  </p>
+                </div>
+
+                <div className="inline-flex items-center gap-2 rounded-2xl bg-gradient-to-r from-amber-500/20 via-amber-400/20 to-amber-500/20 px-4 py-2.5 text-amber-900 dark:text-amber-100 border border-amber-300/80 dark:border-amber-600/60 shadow-sm">
+                  <span className="text-xl">{event.badge}</span>
+                  <span className="text-xs font-black uppercase tracking-wider">
+                    Official Summit Badge Unlocked
+                  </span>
+                </div>
+              </>
+            )}
+
             <button
               id="dismiss-celebration-button"
               type="button"

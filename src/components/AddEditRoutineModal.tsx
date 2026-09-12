@@ -1,7 +1,9 @@
-import React, { useState } from 'react';
-import { Routine, Goal, RoutineFrequency, TaskType, RoutinePriority } from '../types';
+import React, { useState, useEffect } from 'react';
+import { Routine, Goal, RoutineFrequency, TaskType, RoutinePriority, SoundPreset } from '../types';
 import { ProgressCalculationEngine } from '../domain/ProgressCalculationEngine';
-import { X, Check, Repeat } from 'lucide-react';
+import { SoundService } from '../services/SoundService';
+import { NotificationService } from '../services/NotificationService';
+import { X, Check, Repeat, Bell, Volume2, Play, Square, Info } from 'lucide-react';
 
 interface AddEditRoutineModalProps {
   initialRoutine: Routine | null;
@@ -46,6 +48,30 @@ export const AddEditRoutineModal: React.FC<AddEditRoutineModalProps> = ({
   const [unit, setUnit] = useState(initialRoutine?.unit || '');
   const [priority, setPriority] = useState<RoutinePriority>(initialRoutine?.priority || RoutinePriority.MEDIUM);
   const [reminderEnabled, setReminderEnabled] = useState(initialRoutine?.reminderEnabled ?? true);
+  const [reminderSound, setReminderSound] = useState<SoundPreset>(initialRoutine?.reminderSound || 'himaleh_chime');
+  const [permissionStatus, setPermissionStatus] = useState<'granted' | 'denied' | 'default' | 'unsupported'>('default');
+  const [isPlayingSound, setIsPlayingSound] = useState(false);
+
+  useEffect(() => {
+    setPermissionStatus(NotificationService.getPermissionStatus());
+  }, []);
+
+  const handleTogglePlaySound = () => {
+    if (isPlayingSound) {
+      SoundService.stop();
+      setIsPlayingSound(false);
+    } else {
+      setIsPlayingSound(true);
+      SoundService.playPreset(reminderSound === 'custom' ? 'himaleh_chime' : reminderSound, 'medium', () => {
+        setIsPlayingSound(false);
+      });
+    }
+  };
+
+  const handleRequestPermission = async () => {
+    const res = await NotificationService.requestPermission();
+    setPermissionStatus(res);
+  };
 
   const [nameError, setNameError] = useState<string | null>(null);
   const [targetValueError, setTargetValueError] = useState<string | null>(null);
@@ -128,6 +154,7 @@ export const AddEditRoutineModal: React.FC<AddEditRoutineModalProps> = ({
       unit: unit.trim(),
       priority,
       reminderEnabled,
+      reminderSound,
       isPaused: initialRoutine?.isPaused || false,
       createdAt: initialRoutine?.createdAt || Date.now(),
     };
@@ -639,21 +666,104 @@ export const AddEditRoutineModal: React.FC<AddEditRoutineModalProps> = ({
               })}
             </div>
 
-            <div className="flex items-center justify-between rounded-xl bg-neutral-50 dark:bg-neutral-800/50 p-3.5 border border-neutral-200 dark:border-neutral-700/60">
-              <div>
-                <span className="block text-xs font-bold text-neutral-800 dark:text-neutral-200">
-                  Daily Reminder Notification
-                </span>
-                <span className="text-[11px] text-neutral-500 dark:text-neutral-400">
-                  Receive in-app notification at scheduled routine time
-                </span>
+            <div className="rounded-2xl bg-neutral-50 dark:bg-neutral-800/50 p-4 border border-neutral-200 dark:border-neutral-700/60 space-y-3.5">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2.5">
+                  <div className="h-8 w-8 rounded-xl bg-emerald-100 dark:bg-emerald-950/60 text-emerald-600 dark:text-emerald-400 flex items-center justify-center shrink-0">
+                    <Bell className="h-4 w-4" />
+                  </div>
+                  <div>
+                    <span className="block text-xs font-bold text-neutral-800 dark:text-neutral-200">
+                      Scheduled OS Reminder
+                    </span>
+                    <span className="text-[11px] text-neutral-500 dark:text-neutral-400">
+                      Receive actual device notification at {display12Hour(timeHour)}:{String(timeMinute).padStart(2, '0')} {isPM ? 'PM' : 'AM'}
+                    </span>
+                  </div>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setReminderEnabled(!reminderEnabled)}
+                  className={`relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none ${
+                    reminderEnabled ? 'bg-emerald-600' : 'bg-neutral-300 dark:bg-neutral-700'
+                  }`}
+                >
+                  <span
+                    className={`pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow-sm ring-0 transition duration-200 ease-in-out ${
+                      reminderEnabled ? 'translate-x-5' : 'translate-x-0'
+                    }`}
+                  />
+                </button>
               </div>
-              <input
-                type="checkbox"
-                checked={reminderEnabled}
-                onChange={(e) => setReminderEnabled(e.target.checked)}
-                className="h-5 w-5 rounded-md accent-emerald-600 cursor-pointer"
-              />
+
+              {reminderEnabled && (
+                <div className="space-y-3 pt-2 border-t border-neutral-200/80 dark:border-neutral-700/80 animate-fade-in">
+                  {/* Sound Selector and Test Button */}
+                  <div>
+                    <div className="flex items-center justify-between mb-1.5">
+                      <label htmlFor="routine-sound-selector" className="text-[11px] font-bold text-neutral-700 dark:text-neutral-300 flex items-center gap-1.5">
+                        <Volume2 className="h-3.5 w-3.5 text-neutral-500" />
+                        <span>Notification Sound</span>
+                      </label>
+                      <button
+                        type="button"
+                        onClick={handleTogglePlaySound}
+                        className="flex items-center gap-1 text-[11px] font-bold text-emerald-600 dark:text-emerald-400 hover:text-emerald-700 transition cursor-pointer"
+                      >
+                        {isPlayingSound ? (
+                          <>
+                            <Square className="h-3 w-3 fill-current" />
+                            <span>Stop</span>
+                          </>
+                        ) : (
+                          <>
+                            <Play className="h-3 w-3 fill-current" />
+                            <span>Test Sound</span>
+                          </>
+                        )}
+                      </button>
+                    </div>
+
+                    <select
+                      id="routine-sound-selector"
+                      value={reminderSound}
+                      onChange={(e) => {
+                        const val = e.target.value as SoundPreset;
+                        setReminderSound(val);
+                        SoundService.playPreset(val === 'custom' ? 'himaleh_chime' : val, 'medium');
+                      }}
+                      className="w-full rounded-xl border border-neutral-300 dark:border-neutral-700 bg-white dark:bg-neutral-900 px-3 py-2 text-xs font-semibold text-neutral-900 dark:text-neutral-100 focus:border-emerald-500 focus:outline-none"
+                    >
+                      <option value="himaleh_chime">Himaleh Chime (Alpine Crystalline)</option>
+                      <option value="soft_reminder">Soft Reminder (Warm Bell)</option>
+                      <option value="focus_bell">Focus (Tibetan Bowl)</option>
+                      <option value="achievement">Achievement (Ascending Chord)</option>
+                      <option value="gentle_alert">Gentle Alert (Subtle Chime)</option>
+                      <option value="system_default">System Default</option>
+                      <option value="custom">Custom Sound</option>
+                    </select>
+                  </div>
+
+                  {/* Permission Prompt Banner if needed */}
+                  {permissionStatus !== 'granted' && (
+                    <div className="p-3 rounded-xl bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-900/60 flex items-center justify-between gap-3">
+                      <div className="flex items-start gap-2">
+                        <Info className="h-4 w-4 text-amber-600 dark:text-amber-400 shrink-0 mt-0.5" />
+                        <p className="text-[11px] text-amber-800 dark:text-amber-300 leading-tight">
+                          Notifications help Himaleh remind you when your routines are due.
+                        </p>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={handleRequestPermission}
+                        className="px-2.5 py-1 rounded-lg bg-amber-600 hover:bg-amber-700 text-white text-[10px] font-bold shrink-0 transition cursor-pointer"
+                      >
+                        Enable Notifications
+                      </button>
+                    </div>
+                  )}
+                </div>
+              )}
             </div>
           </div>
         </form>

@@ -33,6 +33,8 @@ import { Preloader } from './components/Preloader';
 import { SystemStatusBar } from './components/SystemStatusBar';
 import { AppLockModal } from './components/AppLockModal';
 import { SoundService } from './services/SoundService';
+import { NotificationService } from './services/NotificationService';
+import { Bell } from 'lucide-react';
 
 export const App: React.FC = () => {
   const [currentScreen, setCurrentScreen] = useState<ScreenNav>('dashboard');
@@ -46,6 +48,7 @@ export const App: React.FC = () => {
   const [logs, setLogs] = useState<RoutineLog[]>([]);
   const [reflections, setReflections] = useState<DailyReflection[]>([]);
   const [settings, setSettings] = useState<UserSettings>(() => StorageService.getSettings());
+  const [routineFeedbackNotice, setRoutineFeedbackNotice] = useState<string | null>(null);
 
   // Modals & Sheets
   const [celebrationEvent, setCelebrationEvent] = useState<CelebrationEvent | null>(null);
@@ -88,6 +91,7 @@ export const App: React.FC = () => {
 
   useEffect(() => {
     reloadData();
+    NotificationService.initServiceWorker();
   }, []);
 
   // Sync settings theme
@@ -98,6 +102,36 @@ export const App: React.FC = () => {
       document.documentElement.classList.remove('dark');
     }
   }, [settings.isDarkMode]);
+
+  // Synchronize OS notifications with routines & settings
+  useEffect(() => {
+    if (routines.length > 0) {
+      NotificationService.rescheduleAll(routines, settings);
+    }
+  }, [routines, settings]);
+
+  // Listen for OS notification action buttons (Complete, Open)
+  useEffect(() => {
+    const unsubAction = NotificationService.addActionListener((routineId: number) => {
+      if (routineId) {
+        const target = routines.find((r) => r.id === routineId);
+        if (target) {
+          handleToggleRoutine(target);
+          setRoutineFeedbackNotice(`Routine "${target.name}" completed from notification!`);
+          setTimeout(() => setRoutineFeedbackNotice(null), 3000);
+        }
+      }
+    });
+
+    const unsubFocus = NotificationService.addFocusListener((_routineId) => {
+      setCurrentScreen('routines');
+    });
+
+    return () => {
+      unsubAction();
+      unsubFocus();
+    };
+  }, [routines, logs, currentDate, settings]);
 
   // Derived Calculations
   const dailyProgress = useMemo(() => {
@@ -327,6 +361,16 @@ export const App: React.FC = () => {
     SoundService.play('tap', settings);
   };
 
+  // Helper to format reminder display time
+  const formatReminderTimeStr = (hour: number, minute: number) => {
+    if (settings.timeFormat === '24h') {
+      return `${String(hour).padStart(2, '0')}:${String(minute).padStart(2, '0')}`;
+    }
+    const val = hour % 12 === 0 ? 12 : hour % 12;
+    const ampm = hour >= 12 ? 'PM' : 'AM';
+    return `${val}:${String(minute).padStart(2, '0')} ${ampm}`;
+  };
+
   // Routine CRUD
   const handleSaveRoutine = (routine: Routine) => {
     const exists = routines.some((r) => r.id === routine.id);
@@ -340,20 +384,53 @@ export const App: React.FC = () => {
     StorageService.saveRoutines(updated);
     setRoutineModalState({ isOpen: false, initialRoutine: null });
     setQuickAddModalOpen(false);
+
+    // Synchronize real OS notification schedule
+    if (routine.reminderEnabled && !routine.isPaused && settings.notificationsEnabled) {
+      NotificationService.scheduleRoutine(routine, settings);
+      setRoutineFeedbackNotice(
+        `Routine saved • Reminder scheduled for ${formatReminderTimeStr(routine.timeHour, routine.timeMinute)}`
+      );
+    } else {
+      NotificationService.cancelRoutine(routine.id);
+      setRoutineFeedbackNotice('Routine saved • Reminder disabled');
+    }
+    setTimeout(() => setRoutineFeedbackNotice(null), 3500);
   };
 
   const handleTogglePauseRoutine = (routine: Routine) => {
+    const nextPaused = !routine.isPaused;
     const updated = routines.map((r) =>
-      r.id === routine.id ? { ...r, isPaused: !r.isPaused } : r
+      r.id === routine.id ? { ...r, isPaused: nextPaused } : r
     );
     setRoutines(updated);
     StorageService.saveRoutines(updated);
+
+    if (nextPaused) {
+      NotificationService.cancelRoutine(routine.id);
+      setRoutineFeedbackNotice(`Routine "${routine.name}" paused • Reminder canceled`);
+    } else if (routine.reminderEnabled && settings.notificationsEnabled) {
+      NotificationService.scheduleRoutine({ ...routine, isPaused: false }, settings);
+      setRoutineFeedbackNotice(
+        `Routine "${routine.name}" resumed • Reminder active at ${formatReminderTimeStr(
+          routine.timeHour,
+          routine.timeMinute
+        )}`
+      );
+    }
+    setTimeout(() => setRoutineFeedbackNotice(null), 3000);
   };
 
   const handleDeleteRoutine = (routineId: number) => {
+    const target = routines.find((r) => r.id === routineId);
     const updated = routines.filter((r) => r.id !== routineId);
     setRoutines(updated);
     StorageService.saveRoutines(updated);
+    NotificationService.cancelRoutine(routineId);
+    setRoutineFeedbackNotice(
+      target ? `Routine "${target.name}" deleted • Reminder removed` : 'Routine deleted • Reminder removed'
+    );
+    setTimeout(() => setRoutineFeedbackNotice(null), 3000);
   };
 
   // Goal CRUD
@@ -467,6 +544,9 @@ export const App: React.FC = () => {
       {/* Preloader on startup */}
       {isPreloading && (
         <Preloader
+          onInitialize={async () => {
+            reloadData();
+          }}
           onComplete={() => setIsPreloading(false)}
           reduceMotion={settings.reduceMotion}
           isDarkMode={settings.isDarkMode}
@@ -547,12 +627,22 @@ export const App: React.FC = () => {
           <AnalyticsScreen
             streakStats={streakStats}
             routines={routines}
+            goals={goals}
             logs={logs}
             reflections={reflections}
+            settings={settings}
             onSelectDate={(d) => {
               setCurrentDate(d);
               setCurrentScreen('dashboard');
             }}
+            onNavigateToDashboard={() => setCurrentScreen('dashboard')}
+            onNavigateToGoals={() => setCurrentScreen('goals')}
+            onNavigateToRoutines={() => setCurrentScreen('routines')}
+            onSelectGoal={(goal) => setSelectedGoalDetails(goal)}
+            onSelectRoutine={(routine) =>
+              setRoutineModalState({ isOpen: true, initialRoutine: routine })
+            }
+            onTriggerCelebration={(event) => setCelebrationEvent(event)}
           />
         )}
 
@@ -564,6 +654,17 @@ export const App: React.FC = () => {
           />
         )}
       </main>
+
+      {/* Floating System Confirmation Toast */}
+      {routineFeedbackNotice && (
+        <div
+          id="system-feedback-toast"
+          className="fixed top-5 left-1/2 -translate-x-1/2 z-50 flex items-center gap-2.5 px-4 py-2.5 rounded-2xl bg-neutral-900 dark:bg-neutral-100 text-white dark:text-neutral-900 text-xs font-bold shadow-2xl border border-neutral-700/60 dark:border-neutral-300/60 animate-fade-in pointer-events-none"
+        >
+          <Bell className="h-4 w-4 text-emerald-400 dark:text-emerald-600 shrink-0" />
+          <span>{routineFeedbackNotice}</span>
+        </div>
+      )}
 
       {/* Global Modals & Dialogs */}
       <CelebrationModal

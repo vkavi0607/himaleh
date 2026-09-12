@@ -309,13 +309,20 @@ export const DashboardScreen: React.FC<DashboardScreenProps> = ({
             <p className="text-xs text-neutral-500 max-w-sm mx-auto">
               Enjoy your rest day, or tap 'Quick Add' to queue up a productive action.
             </p>
-            <div className="pt-2">
+            <div className="pt-2 flex flex-wrap items-center justify-center gap-2">
+              <button
+                onClick={onOpenAddRoutine}
+                className="inline-flex items-center gap-2 rounded-xl bg-neutral-900 dark:bg-neutral-100 px-4 py-2 text-xs font-bold text-white dark:text-neutral-900 hover:opacity-90 transition cursor-pointer"
+              >
+                <Plus className="h-3.5 w-3.5" />
+                Create Routine
+              </button>
               <button
                 onClick={onOpenQuickAdd}
-                className="inline-flex items-center gap-2 rounded-xl bg-neutral-900 dark:bg-neutral-100 px-4 py-2 text-xs font-bold text-white dark:text-neutral-900 cursor-pointer"
+                className="inline-flex items-center gap-2 rounded-xl bg-neutral-100 dark:bg-neutral-800 hover:bg-neutral-200 dark:hover:bg-neutral-700 px-4 py-2 text-xs font-bold text-neutral-800 dark:text-neutral-200 transition cursor-pointer"
               >
                 <Zap className="h-3.5 w-3.5" />
-                Add Habit from Templates
+                Quick Presets
               </button>
             </div>
           </div>

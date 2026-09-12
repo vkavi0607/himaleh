@@ -113,7 +113,7 @@ export class ConsistencyEngine {
 
     const weeklyConsistencyPercentage = weeklyActiveDays > 0
       ? Math.round((weeklyCompletedDays / weeklyActiveDays) * 100)
-      : 100;
+      : 0;
 
     // Calculate Monthly Consistency (Last 30 days)
     const last30Days = history.slice(-30);
@@ -129,7 +129,7 @@ export class ConsistencyEngine {
 
     const monthlyConsistencyPercentage = monthlyActiveDays > 0
       ? Math.round((monthlyCompletedDays / monthlyActiveDays) * 100)
-      : 100;
+      : 0;
 
     // Count distinct days with at least one log
     const loggedDates = new Set<string>();

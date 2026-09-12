@@ -81,6 +81,7 @@ export interface Routine {
   unit: string;
   priority: RoutinePriority;
   reminderEnabled: boolean;
+  reminderSound?: SoundPreset;
   isPaused: boolean;
   createdAt: number;
 }
@@ -128,6 +129,8 @@ export interface UserSettings {
   notificationsEnabled: boolean;
   routineReminders: boolean;
   goalReminders: boolean;
+  achievementNotifications?: boolean;
+  accountabilityNotifications?: boolean;
   reflectionReminders: boolean;
   incompleteReminders: boolean;
   soundEnabled: boolean;
@@ -143,6 +146,9 @@ export interface UserSettings {
   strictAccountability: boolean;
   restDayFrequency: number; // e.g., 1 day/week
   theme: 'light' | 'dark' | 'system';
+  accentStyle?: 'emerald' | 'gold' | 'glacier' | 'obsidian';
+  layoutMode?: 'compact' | 'comfortable';
+  autoEnableRoutineReminder?: boolean;
   isDarkMode: boolean;
   weeklyGoalTargetDays: number;
   timeFormat: '12h' | '24h';
@@ -203,7 +209,8 @@ export type DashboardState =
 export type CelebrationEvent =
   | { type: 'DAILY_COMPLETE'; date: string; totalRoutines: number; currentStreak: number }
   | { type: 'WEEKLY_COMPLETE'; completedDays: number; targetDays: number; consistencyPct: number }
-  | { type: 'GOAL_COMPLETE'; goalId: number; goalTitle: string; targetValue: number; unit: string };
+  | { type: 'GOAL_COMPLETE'; goalId: number; goalTitle: string; targetValue: number; unit: string }
+  | { type: 'MILESTONE_UNLOCKED'; milestoneTitle: string; description: string; badge: string };
 
 export interface DayLedger {
   completedRoutineIds?: number[];
