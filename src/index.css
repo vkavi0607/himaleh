@@ -46,6 +46,136 @@
   color-scheme: dark;
 }
 
+/* =========================================================================
+   Himaleh Dynamic Theme Accents, Reduced Motion, & Layout Density
+   ========================================================================= */
+
+:root[data-accent="emerald"] {
+  --theme-primary: #10B981;
+  --theme-primary-pressed: #059669;
+  --theme-primary-muted: rgba(16, 185, 129, 0.15);
+}
+
+:root[data-accent="gold"] {
+  --theme-primary: #F59E0B;
+  --theme-primary-pressed: #D97706;
+  --theme-primary-muted: rgba(245, 158, 11, 0.15);
+}
+
+:root[data-accent="glacier"] {
+  --theme-primary: #06B6D4;
+  --theme-primary-pressed: #0891B2;
+  --theme-primary-muted: rgba(6, 182, 212, 0.15);
+}
+
+:root[data-accent="obsidian"] {
+  --theme-primary: #64748B;
+  --theme-primary-pressed: #475569;
+  --theme-primary-muted: rgba(100, 116, 139, 0.15);
+}
+
+/* Dynamic Accent highlights across the entire UI */
+:root[data-accent="gold"] .text-emerald-600,
+:root[data-accent="gold"] .text-emerald-500,
+:root[data-accent="gold"] .dark\:text-emerald-400 {
+  color: #f59e0b !important;
+}
+:root[data-accent="gold"] .bg-emerald-600,
+:root[data-accent="gold"] .bg-emerald-500,
+:root[data-accent="gold"] .hover\:bg-emerald-500:hover,
+:root[data-accent="gold"] .hover\:bg-emerald-600:hover {
+  background-color: #f59e0b !important;
+}
+:root[data-accent="gold"] .border-emerald-600,
+:root[data-accent="gold"] .border-emerald-500 {
+  border-color: #f59e0b !important;
+}
+:root[data-accent="gold"] .bg-emerald-50,
+:root[data-accent="gold"] .bg-emerald-50\/50,
+:root[data-accent="gold"] .dark\:bg-emerald-950\/20,
+:root[data-accent="gold"] .dark\:bg-emerald-950\/40 {
+  background-color: rgba(245, 158, 11, 0.12) !important;
+}
+:root[data-accent="gold"] .border-emerald-200,
+:root[data-accent="gold"] .border-emerald-300,
+:root[data-accent="gold"] .dark\:border-emerald-800\/40,
+:root[data-accent="gold"] .dark\:border-emerald-900\/40 {
+  border-color: rgba(245, 158, 11, 0.28) !important;
+}
+
+:root[data-accent="glacier"] .text-emerald-600,
+:root[data-accent="glacier"] .text-emerald-500,
+:root[data-accent="glacier"] .dark\:text-emerald-400 {
+  color: #06b6d4 !important;
+}
+:root[data-accent="glacier"] .bg-emerald-600,
+:root[data-accent="glacier"] .bg-emerald-500,
+:root[data-accent="glacier"] .hover\:bg-emerald-500:hover,
+:root[data-accent="glacier"] .hover\:bg-emerald-600:hover {
+  background-color: #06b6d4 !important;
+}
+:root[data-accent="glacier"] .border-emerald-600,
+:root[data-accent="glacier"] .border-emerald-500 {
+  border-color: #06b6d4 !important;
+}
+:root[data-accent="glacier"] .bg-emerald-50,
+:root[data-accent="glacier"] .bg-emerald-50\/50,
+:root[data-accent="glacier"] .dark\:bg-emerald-950\/20,
+:root[data-accent="glacier"] .dark\:bg-emerald-950\/40 {
+  background-color: rgba(6, 182, 212, 0.12) !important;
+}
+:root[data-accent="glacier"] .border-emerald-200,
+:root[data-accent="glacier"] .border-emerald-300,
+:root[data-accent="glacier"] .dark\:border-emerald-800\/40,
+:root[data-accent="glacier"] .dark\:border-emerald-900\/40 {
+  border-color: rgba(6, 182, 212, 0.28) !important;
+}
+
+:root[data-accent="obsidian"] .text-emerald-600,
+:root[data-accent="obsidian"] .text-emerald-500,
+:root[data-accent="obsidian"] .dark\:text-emerald-400 {
+  color: #64748b !important;
+}
+:root[data-accent="obsidian"] .bg-emerald-600,
+:root[data-accent="obsidian"] .bg-emerald-500,
+:root[data-accent="obsidian"] .hover\:bg-emerald-500:hover,
+:root[data-accent="obsidian"] .hover\:bg-emerald-600:hover {
+  background-color: #64748b !important;
+}
+:root[data-accent="obsidian"] .border-emerald-600,
+:root[data-accent="obsidian"] .border-emerald-500 {
+  border-color: #64748b !important;
+}
+:root[data-accent="obsidian"] .bg-emerald-50,
+:root[data-accent="obsidian"] .bg-emerald-50\/50,
+:root[data-accent="obsidian"] .dark\:bg-emerald-950\/20,
+:root[data-accent="obsidian"] .dark\:bg-emerald-950\/40 {
+  background-color: rgba(100, 116, 139, 0.12) !important;
+}
+:root[data-accent="obsidian"] .border-emerald-200,
+:root[data-accent="obsidian"] .border-emerald-300,
+:root[data-accent="obsidian"] .dark\:border-emerald-800\/40,
+:root[data-accent="obsidian"] .dark\:border-emerald-900\/40 {
+  border-color: rgba(100, 116, 139, 0.28) !important;
+}
+
+/* Reduced Motion Override */
+:root.reduce-motion *,
+:root.reduce-motion *::before,
+:root.reduce-motion *::after {
+  animation-duration: 0.001ms !important;
+  animation-iteration-count: 1 !important;
+  transition-duration: 0.001ms !important;
+}
+
+/* Compact Density Mode */
+:root[data-density="compact"] .routine-card {
+  padding: 0.625rem 0.75rem !important;
+}
+:root[data-density="compact"] .routine-title {
+  font-size: 0.8125rem !important;
+}
+
 @layer base {
   body {
     font-family: 'Plus Jakarta Sans', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;

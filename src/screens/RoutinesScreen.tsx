@@ -160,7 +160,7 @@ export const RoutinesScreen: React.FC<RoutinesScreenProps> = ({
               <div
                 key={routine.id}
                 id={`routine-manage-card-${routine.id}`}
-                className={`bg-white dark:bg-neutral-900 rounded-3xl border border-neutral-200/80 dark:border-neutral-800 p-5 space-y-4 shadow-xs transition ${
+                className={`routine-card bg-white dark:bg-neutral-900 rounded-3xl border border-neutral-200/80 dark:border-neutral-800 p-5 space-y-4 shadow-xs transition ${
                   routine.isPaused ? 'opacity-60 bg-neutral-50/70 dark:bg-neutral-900/50' : ''
                 }`}
               >

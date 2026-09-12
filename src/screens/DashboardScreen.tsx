@@ -349,7 +349,7 @@ export const DashboardScreen: React.FC<DashboardScreenProps> = ({
                 <div
                   key={routine.id}
                   id={`routine-card-${routine.id}`}
-                  className={`group relative flex items-center justify-between p-4 rounded-2xl border transition-all ${
+                  className={`routine-card group relative flex items-center justify-between p-4 rounded-2xl border transition-all ${
                     isCompleted
                       ? 'bg-emerald-50/50 dark:bg-emerald-950/20 border-emerald-200/70 dark:border-emerald-900/40'
                       : isSkipped

@@ -17,8 +17,8 @@ self.addEventListener('message', (event) => {
     const { title, options } = event.data;
     event.waitUntil(
       self.registration.showNotification(title, {
-        icon: '/public/favicon.svg',
-        badge: '/public/favicon.svg',
+        icon: '/favicon.svg',
+        badge: '/favicon.svg',
         ...options,
       })
     );

@@ -128,6 +128,14 @@ export const App: React.FC = () => {
     }
   }, [routines, settings]);
 
+  // Apply Accent Palette, Layout Density, and Reduced Motion from Settings
+  useEffect(() => {
+    const root = document.documentElement;
+    root.setAttribute('data-accent', settings.accentStyle || 'emerald');
+    root.setAttribute('data-density', settings.layoutMode || 'comfortable');
+    root.classList.toggle('reduce-motion', Boolean(settings.reduceMotion));
+  }, [settings.accentStyle, settings.layoutMode, settings.reduceMotion]);
+
   // Listen for OS notification action buttons (Complete, Open)
   useEffect(() => {
     const unsubAction = NotificationService.addActionListener((routineId: number) => {
