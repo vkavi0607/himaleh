@@ -9,7 +9,7 @@ interface HimalehWidgetsProps {
   todayLedger?: DayLedger;
   currentStreak: number;
   consistencyScore: number;
-  onToggleRoutine?: (routineId: string) => void;
+  onToggleRoutine?: (routineId: number) => void;
   onSelectGoal?: (goal: Goal) => void;
 }
 
@@ -143,10 +143,10 @@ export const HimalehWidgets: React.FC<HimalehWidgetsProps> = ({
                   <Clock className="h-3.5 w-3.5 text-amber-400 shrink-0" />
                   <div className="min-w-0">
                     <span className="text-xs font-bold text-slate-200 block truncate">
-                      {nextRoutine.title}
+                      {nextRoutine.name}
                     </span>
                     <span className="text-[10px] text-slate-400">
-                      {nextRoutine.preferredTime || 'Scheduled Today'}
+                      {`${String(nextRoutine.timeHour).padStart(2, '0')}:${String(nextRoutine.timeMinute).padStart(2, '0')}`}
                     </span>
                   </div>
                 </div>

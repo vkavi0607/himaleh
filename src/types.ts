@@ -205,4 +205,10 @@ export type CelebrationEvent =
   | { type: 'WEEKLY_COMPLETE'; completedDays: number; targetDays: number; consistencyPct: number }
   | { type: 'GOAL_COMPLETE'; goalId: number; goalTitle: string; targetValue: number; unit: string };
 
+export interface DayLedger {
+  completedRoutineIds?: number[];
+  skippedRoutineIds?: number[];
+  date?: string;
+}
+
 export type ScreenNav = 'dashboard' | 'goals' | 'routines' | 'analytics' | 'settings';
