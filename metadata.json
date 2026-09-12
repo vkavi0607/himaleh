@@ -1,0 +1,6 @@
+{
+  "name": "Himaleh",
+  "description": "Himaleh is a private personal goal, routine, consistency, and accountability tracker with real calculations, streak engine, history, and notifications.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
