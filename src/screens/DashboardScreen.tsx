@@ -26,7 +26,12 @@ import {
   SkipForward,
   RotateCcw,
   Target,
+  ChevronDown,
+  ChevronUp,
+  BookOpen,
+  FileText,
 } from 'lucide-react';
+import { FullReflectionModal } from '../components/FullReflectionModal';
 
 interface DashboardScreenProps {
   currentDate: string;
@@ -66,6 +71,18 @@ export const DashboardScreen: React.FC<DashboardScreenProps> = ({
   onOpenReflection,
 }) => {
   const [activeMenuRoutineId, setActiveMenuRoutineId] = useState<number | null>(null);
+  const [isReflectionExpanded, setIsReflectionExpanded] = useState<boolean>(true);
+  const [showFullReflectionModal, setShowFullReflectionModal] = useState<boolean>(false);
+
+  const formatRoutineTime = (h: number, m: number) => {
+    const mm = String(m).padStart(2, '0');
+    if (settings.timeFormat === '24h') {
+      return `${String(h).padStart(2, '0')}:${mm}`;
+    }
+    const h12 = h % 12 === 0 ? 12 : h % 12;
+    const ampm = h >= 12 ? 'PM' : 'AM';
+    return `${h12}:${mm} ${ampm}`;
+  };
 
   const todayStr = ProgressCalculationEngine.getTodayStr();
   const isToday = currentDate === todayStr;
@@ -310,7 +327,7 @@ export const DashboardScreen: React.FC<DashboardScreenProps> = ({
               const log = progress.routineLogMap[routine.id];
               const linkedGoal = goals.find((g) => g.id === routine.linkedGoalId);
 
-              const timeStr = `${String(routine.timeHour).padStart(2, '0')}:${String(routine.timeMinute).padStart(2, '0')}`;
+              const timeStr = formatRoutineTime(routine.timeHour, routine.timeMinute);
 
               return (
                 <div
@@ -478,28 +495,165 @@ export const DashboardScreen: React.FC<DashboardScreenProps> = ({
       {/* 6. Daily Reflection Card */}
       <div
         id="reflection-section-card"
-        onClick={onOpenReflection}
-        className="bg-white dark:bg-neutral-900 rounded-3xl border border-neutral-200/80 dark:border-neutral-800 p-5 shadow-xs hover:border-neutral-300 dark:hover:border-neutral-700 transition cursor-pointer flex items-center justify-between"
+        className="bg-white dark:bg-neutral-900 rounded-3xl border border-neutral-200/80 dark:border-neutral-800 p-5 shadow-xs space-y-4"
       >
-        <div className="flex items-center gap-3.5">
-          <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-amber-100 dark:bg-amber-950/60 text-amber-600 dark:text-amber-400">
-            <Star className="h-5 w-5 fill-amber-400 text-amber-400" />
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+          <div className="flex items-center gap-3">
+            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-purple-100 dark:bg-purple-950/60 text-purple-600 dark:text-purple-400">
+              <BookOpen className="h-5 w-5" />
+            </div>
+            <div>
+              <h3 className="text-sm font-bold text-neutral-900 dark:text-neutral-100">
+                Daily Reflection
+              </h3>
+              <p className="text-xs text-neutral-500 dark:text-neutral-400">
+                {reflection
+                  ? `${formatDisplayDate(currentDate)} • Rated ${reflection.rating} / 5 Stars`
+                  : 'Take 2 minutes to record your wins, improvements, and evening notes.'}
+              </p>
+            </div>
           </div>
-          <div>
-            <h3 className="text-sm font-bold text-neutral-900 dark:text-neutral-100">
-              {reflection ? 'Daily Reflection Logged' : 'Log Daily Reflection'}
-            </h3>
-            <p className="text-xs text-neutral-500 dark:text-neutral-400">
-              {reflection
-                ? `${reflection.rating} / 5 Stars • "${reflection.wentWell || reflection.notes || 'Day recorded'}"`
-                : 'Take 2 minutes to record your wins, improvements, and mindfulness score.'}
-            </p>
+
+          <div className="flex items-center gap-2 self-start sm:self-auto">
+            {reflection && (
+              <>
+                <button
+                  id="read-full-reflection-button"
+                  type="button"
+                  onClick={() => setShowFullReflectionModal(true)}
+                  className="rounded-xl border border-indigo-200 dark:border-indigo-800 bg-indigo-50/70 dark:bg-indigo-950/40 px-3 py-2 text-xs font-bold text-indigo-700 dark:text-indigo-300 hover:bg-indigo-100 dark:hover:bg-indigo-900/60 transition cursor-pointer flex items-center gap-1.5 min-h-[40px]"
+                >
+                  <FileText className="h-3.5 w-3.5" />
+                  <span>Read Full Reflection</span>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => setIsReflectionExpanded(!isReflectionExpanded)}
+                  className="rounded-xl border border-neutral-200 dark:border-neutral-700 bg-neutral-50 dark:bg-neutral-800 px-3 py-2 text-xs font-semibold text-neutral-700 dark:text-neutral-300 hover:bg-neutral-100 dark:hover:bg-neutral-700 transition cursor-pointer flex items-center gap-1 min-h-[40px]"
+                >
+                  {isReflectionExpanded ? (
+                    <>
+                      <span>Collapse</span>
+                      <ChevronUp className="h-3.5 w-3.5" />
+                    </>
+                  ) : (
+                    <>
+                      <span>Expand</span>
+                      <ChevronDown className="h-3.5 w-3.5" />
+                    </>
+                  )}
+                </button>
+              </>
+            )}
+            <button
+              id="open-reflection-modal-button"
+              type="button"
+              onClick={onOpenReflection}
+              className={`rounded-xl px-4 py-2 text-xs font-bold transition cursor-pointer min-h-[40px] flex items-center justify-center ${
+                reflection
+                  ? 'border border-neutral-200 dark:border-neutral-700 bg-neutral-50 dark:bg-neutral-800 text-neutral-700 dark:text-neutral-300 hover:bg-neutral-100 dark:hover:bg-neutral-700'
+                  : 'bg-neutral-900 dark:bg-neutral-100 text-white dark:text-neutral-900 shadow-xs hover:opacity-90'
+              }`}
+            >
+              {reflection ? 'Edit Reflection' : 'Reflect on Today'}
+            </button>
           </div>
         </div>
 
-        <button className="rounded-xl border border-neutral-200 dark:border-neutral-700 bg-neutral-50 dark:bg-neutral-800 px-3 py-1.5 text-xs font-bold text-neutral-700 dark:text-neutral-300 hover:bg-neutral-100 dark:hover:bg-neutral-700 transition">
-          {reflection ? 'View / Edit' : 'Reflect'}
-        </button>
+        {reflection && (
+          <>
+            {/* Stars rating row */}
+            <div className="flex items-center gap-2 pt-2 border-t border-neutral-100 dark:border-neutral-800">
+              <span className="text-xs font-bold text-neutral-600 dark:text-neutral-400">Rating:</span>
+              <div className="flex items-center gap-1">
+                {[1, 2, 3, 4, 5].map((star) => (
+                  <Star
+                    key={star}
+                    className={`h-4 w-4 ${
+                      star <= reflection.rating
+                        ? 'fill-amber-400 text-amber-400'
+                        : 'text-neutral-300 dark:text-neutral-600'
+                    }`}
+                  />
+                ))}
+              </div>
+              <span className="text-xs font-semibold text-neutral-500 dark:text-neutral-400">
+                ({reflection.rating} / 5 Stars)
+              </span>
+            </div>
+
+            {/* Quick Preview Snippet when collapsed */}
+            {!isReflectionExpanded && (reflection.wentWell || reflection.couldImprove || reflection.notes) && (
+              <div
+                onClick={() => setShowFullReflectionModal(true)}
+                className="p-3 rounded-2xl bg-neutral-50 dark:bg-neutral-800/40 border border-neutral-200/60 dark:border-neutral-700/50 cursor-pointer hover:border-indigo-300 dark:hover:border-indigo-700 transition space-y-1"
+              >
+                <div className="flex items-center justify-between text-[11px] text-neutral-500 font-semibold">
+                  <span>Reflection Excerpt:</span>
+                  <span className="text-indigo-600 dark:text-indigo-400 font-bold hover:underline">
+                    View Full Screen →
+                  </span>
+                </div>
+                <p className="text-xs text-neutral-700 dark:text-neutral-300 line-clamp-2 italic leading-relaxed">
+                  "{reflection.wentWell || reflection.couldImprove || reflection.notes}"
+                </p>
+              </div>
+            )}
+
+            {/* Reflection details, untruncated with proper word wrapping */}
+            {isReflectionExpanded && (
+              <div className="space-y-3 pt-1">
+                {reflection.wentWell && (
+                  <div className="rounded-2xl bg-emerald-50/70 dark:bg-emerald-950/30 border border-emerald-200/80 dark:border-emerald-900/40 p-3.5 space-y-1">
+                    <span className="block text-[11px] font-bold uppercase tracking-wider text-emerald-700 dark:text-emerald-400">
+                      What Went Well
+                    </span>
+                    <p className="text-xs text-neutral-800 dark:text-neutral-200 leading-relaxed whitespace-pre-wrap break-words">
+                      {reflection.wentWell}
+                    </p>
+                  </div>
+                )}
+
+                {reflection.couldImprove && (
+                  <div className="rounded-2xl bg-amber-50/70 dark:bg-amber-950/30 border border-amber-200/80 dark:border-amber-900/40 p-3.5 space-y-1">
+                    <span className="block text-[11px] font-bold uppercase tracking-wider text-amber-700 dark:text-amber-400">
+                      What Could Be Improved
+                    </span>
+                    <p className="text-xs text-neutral-800 dark:text-neutral-200 leading-relaxed whitespace-pre-wrap break-words">
+                      {reflection.couldImprove}
+                    </p>
+                  </div>
+                )}
+
+                {reflection.notes && (
+                  <div className="rounded-2xl bg-purple-50/70 dark:bg-purple-950/30 border border-purple-200/80 dark:border-purple-900/40 p-3.5 space-y-1">
+                    <span className="block text-[11px] font-bold uppercase tracking-wider text-purple-700 dark:text-purple-400">
+                      Thoughts & Notes
+                    </span>
+                    <p className="text-xs text-neutral-800 dark:text-neutral-200 leading-relaxed whitespace-pre-wrap break-words">
+                      {reflection.notes}
+                    </p>
+                  </div>
+                )}
+
+                {!reflection.wentWell && !reflection.couldImprove && !reflection.notes && (
+                  <p className="text-xs text-neutral-500 italic py-1">
+                    Reflection score recorded. Tap "Edit Reflection" to add written notes.
+                  </p>
+                )}
+              </div>
+            )}
+
+            {showFullReflectionModal && (
+              <FullReflectionModal
+                reflection={reflection}
+                onClose={() => setShowFullReflectionModal(false)}
+                onEdit={onOpenReflection}
+              />
+            )}
+          </>
+        )}
       </div>
     </div>
   );

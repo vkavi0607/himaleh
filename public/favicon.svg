@@ -1,0 +1,26 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="100%" height="100%">
+  <defs>
+    <linearGradient id="favTrail" x1="0" y1="1" x2="0" y2="0">
+      <stop offset="0%" stop-color="#B45309" />
+      <stop offset="60%" stop-color="#D97706" />
+      <stop offset="100%" stop-color="#FDE68A" />
+    </linearGradient>
+  </defs>
+  <!-- Background Disc -->
+  <circle cx="32" cy="32" r="30" fill="#0F172A" />
+  
+  <!-- Mountain Shadow Facet -->
+  <polygon points="32,16 10,50 25,50 32,49 40,50 54,50" fill="#1E293B" />
+  <!-- Snow Right Slope -->
+  <polygon points="32,16 42,28 54,50 38,50 32,49" fill="#F8FAFC" />
+  <!-- Left Snow Crevasse -->
+  <polygon points="22,30 26,35 20,44 18,40" fill="#FFFFFF" />
+  
+  <!-- Golden Path -->
+  <path d="M 26,50 C 32,49 38,48 40,44 C 42,41 38,36 32,34 C 26,31 28,26 31,21 L 32,16 C 30,19 28,24 25,27 C 22,31 23,36 29,38 C 33,40 33,43 29,46 C 27,48 26,49 26,50 Z" fill="url(#favTrail)" />
+
+  <!-- Flagpole & Red Summit Flag -->
+  <line x1="32" y1="16" x2="32" y2="8" stroke="#FFFFFF" stroke-width="1.2" stroke-linecap="round" />
+  <circle cx="32" cy="7.5" r="1" fill="#FFFFFF" />
+  <path d="M 32,8 C 36,7 39,9 43,8 C 42,10.5 42.5,12 43,13 C 39,12 36,13.5 32,12.5 Z" fill="#DC2626" />
+</svg>

@@ -1,0 +1,122 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="100%" height="100%">
+  <defs>
+    <!-- Background Circle/Rounded Shield for crisp app icon rendering -->
+    <linearGradient id="iconBgGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#FFFFFF" />
+      <stop offset="100%" stop-color="#F8FAFC" />
+    </linearGradient>
+
+    <!-- Trail Gradient -->
+    <linearGradient id="crestTrailGrad" x1="0%" y1="100%" x2="0%" y2="0%">
+      <stop offset="0%" stop-color="#92400E" />
+      <stop offset="25%" stop-color="#B45309" />
+      <stop offset="55%" stop-color="#D97706" />
+      <stop offset="85%" stop-color="#F59E0B" />
+      <stop offset="100%" stop-color="#FDE68A" />
+    </linearGradient>
+
+    <linearGradient id="crestTrailHighlight" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#FEF3C7" stop-opacity="0.95" />
+      <stop offset="50%" stop-color="#F59E0B" stop-opacity="0.6" />
+      <stop offset="100%" stop-color="#B45309" stop-opacity="0.2" />
+    </linearGradient>
+
+    <!-- Summit Flag Gradient -->
+    <linearGradient id="crestFlagGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#EF4444" />
+      <stop offset="60%" stop-color="#DC2626" />
+      <stop offset="100%" stop-color="#991B1B" />
+    </linearGradient>
+
+    <!-- Dark Mountain Slate Gradients -->
+    <linearGradient id="crestDarkSlateGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#1E293B" />
+      <stop offset="60%" stop-color="#0F172A" />
+      <stop offset="100%" stop-color="#070B14" />
+    </linearGradient>
+
+    <!-- Snow Facet Gradient -->
+    <linearGradient id="crestSnowGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#FFFFFF" />
+      <stop offset="70%" stop-color="#F1F5F9" />
+      <stop offset="100%" stop-color="#E2E8F0" />
+    </linearGradient>
+  </defs>
+
+  <!-- App Icon Rounded Container -->
+  <rect width="512" height="512" rx="112" fill="url(#iconBgGrad)" />
+  <rect width="512" height="512" rx="112" fill="none" stroke="#E2E8F0" stroke-width="6" />
+
+  <!-- Mountain Crest Artwork Centered -->
+  <g transform="translate(0, 20)">
+    <!-- Base Mountain Silhouette (Shadow Rock Facet) -->
+    <polygon points="256,120 70,400 195,402 256,396 325,402 442,400" fill="url(#crestDarkSlateGrad)" />
+
+    <!-- Left Jagged Ridge Shadows -->
+    <polygon points="256,120 170,245 70,400 150,365 200,342" fill="#0B1120" opacity="0.92" />
+    <polygon points="70,400 120,335 152,365" fill="#1E293B" />
+
+    <!-- Right Mountain Slope Facet (Snow & Light Rock) -->
+    <polygon points="256,120 282,185 315,220 365,295 442,400 315,402 256,396" fill="url(#crestSnowGrad)" />
+
+    <!-- Secondary Snow Patches on Left Ridge -->
+    <polygon points="170,245 200,285 150,365 135,328" fill="#FFFFFF" opacity="0.95" />
+    <polygon points="120,335 142,358 100,378" fill="#F8FAFC" opacity="0.9" />
+
+    <!-- Mid Mountain Snow Crevasses -->
+    <polygon points="256,120 278,185 248,212 242,165" fill="#FFFFFF" />
+    <polygon points="292,192 342,268 312,292 280,228" fill="#E2E8F0" />
+    <polygon points="350,285 408,360 372,375 330,320" fill="#F1F5F9" />
+
+    <!-- Sharp Right Ridge Dark Outcroppings -->
+    <polygon points="342,268 372,320 312,292" fill="#1E293B" opacity="0.85" />
+    <polygon points="408,360 442,400 380,388" fill="#0F172A" />
+
+    <!-- THE GOLDEN SUMMIT PATH (Winding upward from base to the peak) -->
+    <path d="M 198,402 
+             C 245,400 288,388 318,366
+             C 345,346 328,308 278,284
+             C 220,256 215,220 244,180
+             C 264,150 259,130 256,120
+             L 253,120
+             C 250,142 242,168 222,200
+             C 192,240 200,280 250,308
+             C 292,332 292,360 254,384
+             C 226,400 208,402 198,402 Z" 
+          fill="url(#crestTrailGrad)" />
+
+    <!-- Path Golden Highlight Ribbon -->
+    <path d="M 215,398 
+             C 255,392 292,380 314,362
+             C 332,344 314,312 276,288
+             C 226,260 222,224 248,182
+             C 262,158 260,132 255,120
+             L 256,120
+             C 260,148 264,174 248,200
+             C 224,238 228,275 278,302
+             C 320,328 335,360 316,382
+             C 294,400 258,402 215,398 Z" 
+          fill="url(#crestTrailHighlight)" />
+
+    <!-- Ground Mountain Foot Shadow Arch -->
+    <path d="M 70,400 Q 256,412 442,400 Q 256,398 70,400 Z" fill="#0F172A" />
+
+    <!-- THE SUMMIT FLAGPOST & CRIMSON FLAG -->
+    <line x1="256" y1="124" x2="256" y2="64" stroke="#0F172A" stroke-width="5" stroke-linecap="round" />
+    <circle cx="256" cy="62" r="5" fill="#0F172A" />
+
+    <!-- Red Summit Flag (Waving Rightward) -->
+    <path d="M 256,68 
+             C 282,62 306,74 338,67
+             C 332,86 337,98 339,104
+             C 314,98 286,109 256,102 Z" 
+          fill="url(#crestFlagGrad)" />
+
+    <!-- Flag Waving Fold Shadow -->
+    <path d="M 292,67 
+             C 310,70 322,69 338,67 
+             L 339,104 
+             C 322,101 310,103 292,101 Z" 
+          fill="#B91C1C" opacity="0.35" />
+  </g>
+</svg>

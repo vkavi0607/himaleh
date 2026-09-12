@@ -251,16 +251,32 @@ export const AnalyticsScreen: React.FC<AnalyticsScreenProps> = ({
                 </div>
 
                 {ref.wentWell && (
-                  <p className="text-xs text-neutral-600 dark:text-neutral-300">
-                    <span className="font-bold text-emerald-600">Wins:</span> {ref.wentWell}
+                  <p className="text-xs text-neutral-700 dark:text-neutral-200 leading-relaxed whitespace-pre-wrap break-words">
+                    <span className="font-bold text-emerald-600 dark:text-emerald-400">Wins:</span> {ref.wentWell}
                   </p>
                 )}
 
                 {ref.couldImprove && (
-                  <p className="text-xs text-neutral-600 dark:text-neutral-300">
-                    <span className="font-bold text-rose-500">Improve:</span> {ref.couldImprove}
+                  <p className="text-xs text-neutral-700 dark:text-neutral-200 leading-relaxed whitespace-pre-wrap break-words">
+                    <span className="font-bold text-amber-600 dark:text-amber-400">Improve:</span> {ref.couldImprove}
                   </p>
                 )}
+
+                {ref.notes && (
+                  <p className="text-xs text-neutral-700 dark:text-neutral-200 leading-relaxed whitespace-pre-wrap break-words">
+                    <span className="font-bold text-purple-600 dark:text-purple-400">Notes:</span> {ref.notes}
+                  </p>
+                )}
+
+                <div className="pt-1 flex justify-end">
+                  <button
+                    type="button"
+                    onClick={() => onSelectDate(ref.date)}
+                    className="text-[11px] font-bold text-emerald-600 dark:text-emerald-400 hover:underline cursor-pointer"
+                  >
+                    View in Day Log →
+                  </button>
+                </div>
               </div>
             ))}
           </div>

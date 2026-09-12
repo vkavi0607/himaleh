@@ -18,6 +18,7 @@ interface RoutinesScreenProps {
   routines: Routine[];
   goals: Goal[];
   logs: RoutineLog[];
+  timeFormat?: '12h' | '24h';
   onOpenNewRoutine: () => void;
   onOpenQuickAdd: () => void;
   onEditRoutine: (routine: Routine) => void;
@@ -29,6 +30,7 @@ export const RoutinesScreen: React.FC<RoutinesScreenProps> = ({
   routines,
   goals,
   logs,
+  timeFormat = '12h',
   onOpenNewRoutine,
   onOpenQuickAdd,
   onEditRoutine,
@@ -39,6 +41,16 @@ export const RoutinesScreen: React.FC<RoutinesScreenProps> = ({
   const [deleteConfirmId, setDeleteConfirmId] = useState<number | null>(null);
 
   const categories = ['ALL', 'Health', 'Fitness', 'Work', 'Study', 'Mindset', 'Personal'];
+
+  const formatRoutineTime = (h: number, m: number) => {
+    const mm = String(m).padStart(2, '0');
+    if (timeFormat === '24h') {
+      return `${String(h).padStart(2, '0')}:${mm}`;
+    }
+    const h12 = h % 12 === 0 ? 12 : h % 12;
+    const ampm = h >= 12 ? 'PM' : 'AM';
+    return `${h12}:${mm} ${ampm}`;
+  };
 
   const filteredRoutines = routines.filter((r) => {
     if (selectedCategory === 'ALL') return true;
@@ -142,7 +154,7 @@ export const RoutinesScreen: React.FC<RoutinesScreenProps> = ({
           {filteredRoutines.map((routine) => {
             const linkedGoal = goals.find((g) => g.id === routine.linkedGoalId);
             const routineStreak = ConsistencyEngine.calculateRoutineStreak(routine, logs);
-            const timeStr = `${String(routine.timeHour).padStart(2, '0')}:${String(routine.timeMinute).padStart(2, '0')}`;
+            const timeStr = formatRoutineTime(routine.timeHour, routine.timeMinute);
 
             return (
               <div

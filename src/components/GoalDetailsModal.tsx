@@ -7,6 +7,7 @@ interface GoalDetailsModalProps {
   goal: Goal | null;
   progress: GoalProgressResult | null;
   linkedRoutines: Routine[];
+  timeFormat?: '12h' | '24h';
   onDismiss: () => void;
   onEdit: () => void;
   onDelete: () => void;
@@ -18,6 +19,7 @@ export const GoalDetailsModal: React.FC<GoalDetailsModalProps> = ({
   goal,
   progress,
   linkedRoutines,
+  timeFormat = '12h',
   onDismiss,
   onEdit,
   onDelete,
@@ -165,7 +167,9 @@ export const GoalDetailsModal: React.FC<GoalDetailsModalProps> = ({
                     </span>
                   </div>
                   <span className="text-[11px] font-semibold text-neutral-500">
-                    {String(r.timeHour).padStart(2, '0')}:{String(r.timeMinute).padStart(2, '0')}
+                    {timeFormat === '12h'
+                      ? `${r.timeHour % 12 || 12}:${String(r.timeMinute).padStart(2, '0')} ${r.timeHour >= 12 ? 'PM' : 'AM'}`
+                      : `${String(r.timeHour).padStart(2, '0')}:${String(r.timeMinute).padStart(2, '0')}`}
                   </span>
                 </div>
               ))}

@@ -96,7 +96,7 @@ export interface RoutineLog {
   durationMinutesLogged: number;
   notes: string;
   rescheduledToDate: string | null;
-  completedAt: number;
+  completedAt: number | null;
 }
 
 export interface DailyReflection {
@@ -109,17 +109,46 @@ export interface DailyReflection {
   createdAt: number;
 }
 
+export type SoundPreset =
+  | 'himaleh_chime'
+  | 'soft_reminder'
+  | 'focus_bell'
+  | 'achievement'
+  | 'celebration'
+  | 'weekly_completion'
+  | 'accountability'
+  | 'gentle_alert'
+  | 'system_default'
+  | 'custom';
+
 export interface UserSettings {
   userName: string;
   morningReminderTime: string; // HH:mm
   eveningReflectionTime: string; // HH:mm
   notificationsEnabled: boolean;
+  routineReminders: boolean;
+  goalReminders: boolean;
+  reflectionReminders: boolean;
+  incompleteReminders: boolean;
   soundEnabled: boolean;
+  reminderSounds: boolean;
+  celebrationSounds: boolean;
+  accountabilitySounds: boolean;
+  soundVolume: 'low' | 'medium' | 'high';
+  selectedSound: SoundPreset;
+  customSoundName: string | null;
+  customSoundData: string | null;
   vibrationEnabled: boolean;
+  reduceMotion: boolean;
   strictAccountability: boolean;
   restDayFrequency: number; // e.g., 1 day/week
+  theme: 'light' | 'dark' | 'system';
   isDarkMode: boolean;
   weeklyGoalTargetDays: number;
+  timeFormat: '12h' | '24h';
+  weekStartsOn: 'monday' | 'sunday';
+  appLockEnabled: boolean;
+  appLockPin: string | null;
 }
 
 export interface NotificationItem {

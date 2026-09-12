@@ -1,0 +1,160 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 800" width="100%" height="100%">
+  <defs>
+    <!-- Trail Gradient -->
+    <linearGradient id="himalehTrailGrad" x1="0%" y1="100%" x2="0%" y2="0%">
+      <stop offset="0%" stop-color="#92400E" />
+      <stop offset="25%" stop-color="#B45309" />
+      <stop offset="55%" stop-color="#D97706" />
+      <stop offset="85%" stop-color="#F59E0B" />
+      <stop offset="100%" stop-color="#FDE68A" />
+    </linearGradient>
+
+    <linearGradient id="himalehTrailHighlight" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#FEF3C7" stop-opacity="0.9" />
+      <stop offset="50%" stop-color="#F59E0B" stop-opacity="0.5" />
+      <stop offset="100%" stop-color="#B45309" stop-opacity="0.2" />
+    </linearGradient>
+
+    <!-- Summit Flag Gradient -->
+    <linearGradient id="himalehFlagGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#EF4444" />
+      <stop offset="60%" stop-color="#DC2626" />
+      <stop offset="100%" stop-color="#991B1B" />
+    </linearGradient>
+
+    <!-- Dark Mountain Slate Gradients -->
+    <linearGradient id="himalehDarkSlateGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#1E293B" />
+      <stop offset="60%" stop-color="#0F172A" />
+      <stop offset="100%" stop-color="#070B14" />
+    </linearGradient>
+
+    <!-- Snow Facet Gradient -->
+    <linearGradient id="himalehSnowGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#FFFFFF" />
+      <stop offset="70%" stop-color="#F1F5F9" />
+      <stop offset="100%" stop-color="#E2E8F0" />
+    </linearGradient>
+
+    <!-- Mountain Crest Shadow -->
+    <filter id="himalehGlow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="6" stdDeviation="12" flood-color="#D97706" flood-opacity="0.18" />
+    </filter>
+  </defs>
+
+  <!-- Mountain Crest Artwork -->
+  <g id="mountain-crest" filter="url(#himalehGlow)">
+    <!-- Base Mountain Silhouette (Shadow Rock Facet) -->
+    <polygon points="400,140 140,515 315,518 400,510 495,518 660,515" fill="url(#himalehDarkSlateGrad)" />
+
+    <!-- Left Jagged Ridge Shadows -->
+    <polygon points="400,140 280,310 140,515 250,470 320,440" fill="#0B1120" opacity="0.9" />
+    <polygon points="140,515 210,430 255,470" fill="#1E293B" />
+
+    <!-- Right Mountain Slope Facet (Snow & Light Rock) -->
+    <polygon points="400,140 435,225 480,270 550,370 660,515 480,518 400,510" fill="url(#himalehSnowGrad)" />
+
+    <!-- Secondary Snow Patches on Left Ridge -->
+    <polygon points="280,310 320,360 250,470 230,420" fill="#FFFFFF" opacity="0.95" />
+    <polygon points="210,430 240,460 180,485" fill="#F8FAFC" opacity="0.9" />
+
+    <!-- Mid Mountain Snow Crevasses -->
+    <polygon points="400,140 430,225 390,260 380,200" fill="#FFFFFF" />
+    <polygon points="450,235 520,330 480,360 435,280" fill="#E2E8F0" />
+    <polygon points="530,350 610,450 560,470 500,400" fill="#F1F5F9" />
+
+    <!-- Sharp Right Ridge Dark Outcroppings -->
+    <polygon points="520,330 560,400 480,360" fill="#1E293B" opacity="0.85" />
+    <polygon points="610,450 660,515 570,490" fill="#0F172A" />
+
+    <!-- THE GOLDEN SUMMIT PATH (Winding upward from base to the peak) -->
+    <!-- Path Outer Shadow/Base -->
+    <path d="M 315,518 
+             C 380,515 440,500 480,475
+             C 520,450 500,400 430,370
+             C 350,335 340,290 380,240
+             C 410,200 405,170 400,140
+             L 395,140
+             C 390,170 380,205 350,245
+             C 310,295 320,345 390,380
+             C 450,410 450,445 400,475
+             C 360,498 330,510 315,518 Z" 
+          fill="#78350F" opacity="0.4" />
+
+    <!-- Path Main Body (Rich Golden Amber Ribbon) -->
+    <path d="M 318,518 
+             C 385,515 445,498 485,472
+             C 522,446 495,398 425,368
+             C 345,333 338,288 382,238
+             C 412,198 404,168 400,140
+             L 396,140
+             C 392,168 382,202 352,242
+             C 312,292 322,342 392,377
+             C 452,407 452,442 398,472
+             C 358,495 332,510 318,518 Z" 
+          fill="url(#himalehTrailGrad)" />
+
+    <!-- Path Golden Highlight Ribbon -->
+    <path d="M 340,512 
+             C 400,505 450,490 480,468
+             C 505,445 480,405 425,372
+             C 355,338 350,292 385,242
+             C 405,210 402,175 398,140
+             L 400,140
+             C 405,175 410,208 388,240
+             C 355,288 360,335 430,368
+             C 490,402 512,442 485,470
+             C 455,492 405,508 340,512 Z" 
+          fill="url(#himalehTrailHighlight)" />
+
+    <!-- Ground Level Mountain Foot Shadow Arch -->
+    <path d="M 140,515 Q 400,530 660,515 Q 400,512 140,515 Z" fill="#0F172A" />
+
+    <!-- THE SUMMIT FLAGPOST & CRIMSON FLAG -->
+    <!-- Flagpole -->
+    <line x1="400" y1="145" x2="400" y2="70" stroke="#0F172A" stroke-width="6" stroke-linecap="round" />
+    <circle cx="400" cy="68" r="6" fill="#0F172A" />
+
+    <!-- Red Summit Flag (Waving Rightward) -->
+    <path d="M 400,75 
+             C 435,68 465,82 505,74
+             C 498,98 504,112 506,120
+             C 475,112 440,126 400,118 Z" 
+          fill="url(#himalehFlagGrad)" />
+
+    <!-- Flag Waving Fold Shadow -->
+    <path d="M 445,74 
+             C 470,78 485,76 505,74 
+             L 506,120 
+             C 485,116 470,118 445,116 Z" 
+          fill="#B91C1C" opacity="0.35" />
+  </g>
+
+  <!-- TYPOGRAPHY SECTION -->
+  <g id="brand-typography">
+    <!-- "Himaleh" Wordmark with Botanical/Leaf Accent -->
+    <text x="400" y="635" 
+          font-family="'Plus Jakarta Sans', 'Cinzel', Georgia, serif" 
+          font-size="94" 
+          font-weight="800" 
+          letter-spacing="-1.5" 
+          fill="#0F172A" 
+          text-anchor="middle">
+      Himaleh
+    </text>
+
+    <!-- Leaf Accent in 'H' / 'a' Flourish -->
+    <path d="M 235,595 C 248,586 260,592 258,605 C 248,606 238,602 235,595 Z" fill="#D97706" />
+
+    <!-- Subtitle: TRACK • IMPROVE • ACHIEVE -->
+    <text x="400" y="688" 
+          font-family="'Plus Jakarta Sans', -apple-system, sans-serif" 
+          font-size="22" 
+          font-weight="700" 
+          letter-spacing="9" 
+          fill="#475569" 
+          text-anchor="middle">
+      TRACK  •  IMPROVE  •  ACHIEVE
+    </text>
+  </g>
+</svg>

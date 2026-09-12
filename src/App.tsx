@@ -29,6 +29,10 @@ import { AddEditRoutineModal } from './components/AddEditRoutineModal';
 import { AddEditGoalModal } from './components/AddEditGoalModal';
 import { GoalDetailsModal } from './components/GoalDetailsModal';
 import { QuickAddRoutineModal } from './components/QuickAddRoutineModal';
+import { Preloader } from './components/Preloader';
+import { SystemStatusBar } from './components/SystemStatusBar';
+import { AppLockModal } from './components/AppLockModal';
+import { SoundService } from './services/SoundService';
 
 export const App: React.FC = () => {
   const [currentScreen, setCurrentScreen] = useState<ScreenNav>('dashboard');
@@ -61,6 +65,10 @@ export const App: React.FC = () => {
   }>({ isOpen: false, initialGoal: null });
 
   const [selectedGoalDetails, setSelectedGoalDetails] = useState<Goal | null>(null);
+
+  // App Startup Preloader and Security Lock
+  const [isPreloading, setIsPreloading] = useState(true);
+  const [isLocked, setIsLocked] = useState(() => Boolean(settings.appLockEnabled && settings.appLockPin));
 
   // Initialize data on mount
   const reloadData = () => {
@@ -126,6 +134,7 @@ export const App: React.FC = () => {
     const nextProg = ProgressCalculationEngine.calculateDailyProgress(currentDate, routines, updatedLogs);
     if (nextProg.totalPlanned > 0 && nextProg.completedCount >= nextProg.totalPlanned) {
       const nextStreaks = ConsistencyEngine.calculateStreaks(routines, updatedLogs, currentDate);
+      SoundService.play('celebration', settings);
       setCelebrationEvent({
         type: 'DAILY_COMPLETE',
         date: currentDate,
@@ -160,7 +169,10 @@ export const App: React.FC = () => {
       updatedLogs[existingLogIndex] = updatedLog;
 
       if (nextCompleted) {
+        SoundService.play('milestone', settings);
         checkDailyCelebrationTrigger(updatedLogs);
+      } else {
+        SoundService.play('tap', settings);
       }
     } else {
       const newLog: RoutineLog = {
@@ -177,6 +189,7 @@ export const App: React.FC = () => {
         completedAt: Date.now(),
       };
       updatedLogs = [...logs, newLog];
+      SoundService.play('milestone', settings);
       checkDailyCelebrationTrigger(updatedLogs);
     }
 
@@ -227,6 +240,7 @@ export const App: React.FC = () => {
     setLogs(updatedLogs);
     StorageService.saveLogs(updatedLogs);
     setMeasurableModalRoutine(null);
+    SoundService.play('milestone', settings);
     checkDailyCelebrationTrigger(updatedLogs);
   };
 
@@ -266,6 +280,7 @@ export const App: React.FC = () => {
 
     setLogs(updatedLogs);
     StorageService.saveLogs(updatedLogs);
+    SoundService.play('tap', settings);
   };
 
   const handleRescheduleConfirm = (targetDate: string) => {
@@ -309,6 +324,7 @@ export const App: React.FC = () => {
     setLogs(updatedLogs);
     StorageService.saveLogs(updatedLogs);
     setRescheduleModalRoutine(null);
+    SoundService.play('tap', settings);
   };
 
   // Routine CRUD
@@ -448,6 +464,27 @@ export const App: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-neutral-50 dark:bg-neutral-950 text-neutral-900 dark:text-neutral-50 selection:bg-emerald-500 selection:text-white">
+      {/* Preloader on startup */}
+      {isPreloading && (
+        <Preloader
+          onComplete={() => setIsPreloading(false)}
+          reduceMotion={settings.reduceMotion}
+          isDarkMode={settings.isDarkMode}
+        />
+      )}
+
+      {/* App PIN Lock Screen */}
+      {!isPreloading && settings.appLockEnabled && Boolean(settings.appLockPin) && isLocked && (
+        <AppLockModal
+          correctPin={settings.appLockPin || ''}
+          settings={settings}
+          onUnlock={() => setIsLocked(false)}
+        />
+      )}
+
+      {/* System Status Bar for mobile views */}
+      <SystemStatusBar isDarkMode={settings.isDarkMode} timeFormat={settings.timeFormat} />
+
       {/* Navigation Bars */}
       <Navigation currentScreen={currentScreen} onNavigate={setCurrentScreen} />
 
@@ -493,6 +530,7 @@ export const App: React.FC = () => {
             routines={routines}
             goals={goals}
             logs={logs}
+            timeFormat={settings.timeFormat}
             onOpenNewRoutine={() =>
               setRoutineModalState({ isOpen: true, initialRoutine: null })
             }
@@ -559,6 +597,7 @@ export const App: React.FC = () => {
         <AddEditRoutineModal
           initialRoutine={routineModalState.initialRoutine}
           goals={goals}
+          is24HourFormat={settings.timeFormat === '24h'}
           onDismiss={() => setRoutineModalState({ isOpen: false, initialRoutine: null })}
           onSave={handleSaveRoutine}
         />
@@ -577,6 +616,7 @@ export const App: React.FC = () => {
           goal={selectedGoalDetails}
           progress={goalProgressMap[selectedGoalDetails.id] || null}
           linkedRoutines={routines.filter((r) => r.linkedGoalId === selectedGoalDetails.id)}
+          timeFormat={settings.timeFormat}
           onDismiss={() => setSelectedGoalDetails(null)}
           onEdit={() => {
             const g = selectedGoalDetails;

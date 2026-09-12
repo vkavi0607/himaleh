@@ -31,20 +31,51 @@ export class AccountabilityEngine {
       };
     }
 
-    const todayStr = ProgressCalculationEngine.getTodayStr();
-    const isPastDate = ProgressCalculationEngine.compareDates(date, todayStr) < 0;
-
-    // Filter unfinished routines
+    // Filter unfinished routines (routines that are neither completed nor intentionally skipped/rescheduled)
     const unfinished = progress.plannedRoutines.filter(
       (r) => !progress.completedRoutineIds.has(r.id) && !progress.skippedRoutineIds.has(r.id)
     );
 
-    if (isPastDate) {
-      // Any past date with unfinished tasks triggers accountability
+    // If every planned routine is accounted for (completed or intentionally skipped/rescheduled)
+    if (unfinished.length === 0) {
+      if (progress.completedCount === 0 && progress.skippedCount > 0) {
+        return {
+          type: 'REST_DAY',
+          title: 'Off-Schedule / Planned Rest',
+          message: `${progress.skippedCount} routine${progress.skippedCount > 1 ? 's were' : ' was'} intentionally skipped or rescheduled. Rest, reset, and prepare for tomorrow.`,
+          emoji: '🧘',
+        };
+      }
+
+      return {
+        type: 'COMPLETED',
+        title: 'Routines Accounted For',
+        message: `${progress.completedCount} completed, ${progress.skippedCount} skipped/rescheduled • No pending routines remain.`,
+        emoji: '✨',
+        streak: streakStats.currentStreak,
+      };
+    }
+
+    const todayStr = ProgressCalculationEngine.getTodayStr();
+    const dateComparison = ProgressCalculationEngine.compareDates(date, todayStr);
+
+    if (dateComparison > 0) {
+      // Future date
+      return {
+        type: 'IN_PROGRESS',
+        title: 'Upcoming Day',
+        message: `${progress.totalPlanned} routine${progress.totalPlanned > 1 ? 's' : ''} planned for this date.`,
+        emoji: '📅',
+        remainingCount: unfinished.length,
+      };
+    }
+
+    if (dateComparison < 0) {
+      // Past date with truly unfinished (unskipped) tasks
       return {
         type: 'ACCOUNTABILITY',
         title: 'Missed Routines',
-        message: `${unfinished.length} routine${unfinished.length > 1 ? 's were' : ' was'} missed on this day. Reclaim your rhythm!`,
+        message: `${unfinished.length} routine${unfinished.length > 1 ? 's were' : ' was'} uncompleted without reschedule. Reclaim your rhythm!`,
         emoji: '⚠️',
         missedRoutines: unfinished,
         severity: 'STRICT',
@@ -63,14 +94,15 @@ export class AccountabilityEngine {
       return currentMinutes > routineMinutes + 30;
     });
 
-    if (overdueRoutines.length > 0 || currentHour >= 21) {
+    if (overdueRoutines.length > 0 || (currentHour >= 21 && unfinished.length > 0)) {
       const severity = settings.strictAccountability
         ? 'STRICT'
         : overdueRoutines.length >= 3
         ? 'FIRM'
         : 'MILD';
 
-      const feedback = this.getAccountabilityFeedback(severity, overdueRoutines.length);
+      const overdueCount = overdueRoutines.length > 0 ? overdueRoutines.length : unfinished.length;
+      const feedback = this.getAccountabilityFeedback(severity, overdueCount);
 
       return {
         type: 'ACCOUNTABILITY',
@@ -82,14 +114,13 @@ export class AccountabilityEngine {
       };
     }
 
-    // Still early / in progress
-    const remaining = progress.totalPlanned - progress.completedCount;
+    // Still early / in progress today
     return {
       type: 'IN_PROGRESS',
       title: 'In Progress',
-      message: `${progress.completedCount} of ${progress.totalPlanned} completed • ${remaining} remaining today`,
+      message: `${progress.completedCount} of ${progress.totalPlanned} completed • ${unfinished.length} remaining today`,
       emoji: '⚡',
-      remainingCount: remaining,
+      remainingCount: unfinished.length,
     };
   }
 
