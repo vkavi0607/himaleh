@@ -40,6 +40,8 @@ export const DEFAULT_SETTINGS: UserSettings = {
   strictAccountability: false,
   restDayFrequency: 1,
   theme: 'system',
+  automaticLightTime: '06:00',
+  automaticDarkTime: '18:00',
   accentStyle: 'emerald',
   layoutMode: 'comfortable',
   autoEnableRoutineReminder: true,

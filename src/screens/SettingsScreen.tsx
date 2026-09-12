@@ -5,6 +5,7 @@ import { SoundService } from '../services/SoundService';
 import { NotificationService } from '../services/NotificationService';
 import { DataExportService, ImportValidationResult } from '../services/DataExportService';
 import { HimalehLogo } from '../components/HimalehLogo';
+import { useTheme } from '../theme/ThemeContext';
 import {
   User,
   Bell,
@@ -12,9 +13,6 @@ import {
   Upload,
   RotateCcw,
   Check,
-  Moon,
-  Sun,
-  Laptop,
   Sparkles,
   Clock,
   Play,
@@ -43,12 +41,14 @@ interface SettingsScreenProps {
   settings: UserSettings;
   onUpdateSettings: (newSettings: UserSettings) => void;
   onDataReload: () => void;
+  onReplayPreloader?: () => void;
 }
 
 export const SettingsScreen: React.FC<SettingsScreenProps> = ({
   settings,
   onUpdateSettings,
   onDataReload,
+  onReplayPreloader,
 }) => {
   // --- Profile & Account ---
   const [userName, setUserName] = useState(settings.userName || 'Explorer');
@@ -85,8 +85,9 @@ export const SettingsScreen: React.FC<SettingsScreenProps> = ({
   const [eveningReflectionTime, setEveningReflectionTime] = useState(settings.eveningReflectionTime || '21:30');
 
   // --- Appearance ---
-  const [theme, setTheme] = useState<'light' | 'dark' | 'system'>(settings.theme || 'system');
-  const [isDarkMode, setIsDarkMode] = useState(settings.isDarkMode ?? false);
+  const { 
+    isDark: contextIsDark,
+  } = useTheme();
   const [accentStyle, setAccentStyle] = useState<'emerald' | 'gold' | 'glacier' | 'obsidian'>(settings.accentStyle || 'emerald');
   const [reduceMotion, setReduceMotion] = useState(settings.reduceMotion ?? false);
   const [layoutMode, setLayoutMode] = useState<'compact' | 'comfortable'>(settings.layoutMode || 'comfortable');
@@ -268,26 +269,6 @@ export const SettingsScreen: React.FC<SettingsScreenProps> = ({
     setTimeout(() => setActionNotice(null), 2500);
   };
 
-  // Theme change
-  const handleThemeChange = (newTheme: 'light' | 'dark' | 'system') => {
-    setTheme(newTheme);
-    let dark = isDarkMode;
-    if (newTheme === 'dark') {
-      dark = true;
-    } else if (newTheme === 'light') {
-      dark = false;
-    } else {
-      dark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
-    }
-    setIsDarkMode(dark);
-    if (dark) {
-      document.documentElement.classList.add('dark');
-    } else {
-      document.documentElement.classList.remove('dark');
-    }
-    autoPersistSettings({ theme: newTheme, isDarkMode: dark });
-  };
-
   // Auto-persist helper for immediate responsive changes
   const autoPersistSettings = (partial: Partial<UserSettings>) => {
     const updated: UserSettings = {
@@ -316,8 +297,10 @@ export const SettingsScreen: React.FC<SettingsScreenProps> = ({
       autoEnableRoutineReminder,
       morningReminderTime,
       eveningReflectionTime,
-      theme,
-      isDarkMode,
+      theme: (partial.theme ?? settings.theme) as any,
+      automaticLightTime: partial.automaticLightTime ?? settings.automaticLightTime,
+      automaticDarkTime: partial.automaticDarkTime ?? settings.automaticDarkTime,
+      isDarkMode: partial.isDarkMode ?? contextIsDark,
       accentStyle,
       reduceMotion,
       layoutMode,
@@ -357,8 +340,10 @@ export const SettingsScreen: React.FC<SettingsScreenProps> = ({
       autoEnableRoutineReminder,
       morningReminderTime,
       eveningReflectionTime,
-      theme,
-      isDarkMode,
+      theme: settings.theme as any,
+      automaticLightTime: settings.automaticLightTime,
+      automaticDarkTime: settings.automaticDarkTime,
+      isDarkMode: contextIsDark,
       accentStyle,
       reduceMotion,
       layoutMode,
@@ -1280,51 +1265,6 @@ export const SettingsScreen: React.FC<SettingsScreenProps> = ({
         </div>
 
         <div className="rounded-2xl bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 divide-y divide-neutral-100 dark:divide-neutral-800/80 shadow-xs overflow-hidden">
-          {/* Theme Selector (3 Cards) */}
-          <div className="p-4 sm:p-5 space-y-3">
-            <div>
-              <span className="block text-sm font-bold text-neutral-900 dark:text-neutral-100">
-                Theme Mode
-              </span>
-              <span className="text-xs text-neutral-500 dark:text-neutral-400">
-                Choose your preferred visual atmosphere
-              </span>
-            </div>
-
-            <div className="grid grid-cols-3 gap-2.5">
-              {[
-                { id: 'light', label: 'Light', icon: Sun, desc: 'Clean bright alpine' },
-                { id: 'dark', label: 'Dark', icon: Moon, desc: 'Deep obsidian night' },
-                { id: 'system', label: 'System', icon: Laptop, desc: 'Match device OS' },
-              ].map((t) => {
-                const isSelected = theme === t.id;
-                const IconComponent = t.icon;
-                return (
-                  <button
-                    key={t.id}
-                    type="button"
-                    onClick={() => handleThemeChange(t.id as 'light' | 'dark' | 'system')}
-                    className={`p-3.5 rounded-xl border text-center transition cursor-pointer flex flex-col items-center gap-2 ${
-                      isSelected
-                        ? 'border-emerald-600 bg-emerald-50/60 dark:bg-emerald-950/40 ring-1 ring-emerald-600 text-neutral-900 dark:text-neutral-100'
-                        : 'border-neutral-200 dark:border-neutral-800 bg-neutral-50/60 dark:bg-neutral-800/40 hover:bg-neutral-100 dark:hover:bg-neutral-800 text-neutral-600 dark:text-neutral-400'
-                    }`}
-                  >
-                    <IconComponent
-                      className={`h-5 w-5 ${isSelected ? 'text-emerald-600 dark:text-emerald-400' : ''}`}
-                    />
-                    <div>
-                      <div className="text-xs font-bold">{t.label}</div>
-                      <div className="text-[10px] text-neutral-400 dark:text-neutral-500 truncate mt-0.5">
-                        {t.desc}
-                      </div>
-                    </div>
-                  </button>
-                );
-              })}
-            </div>
-          </div>
-
           {/* Accent Style */}
           <div className="p-4 sm:p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
             <div>
@@ -1586,6 +1526,31 @@ export const SettingsScreen: React.FC<SettingsScreenProps> = ({
               v1.4.2 Alpine
             </span>
           </div>
+
+          {/* Preview Startup Experience */}
+          {onReplayPreloader && (
+            <button
+              id="test-preloader-button"
+              type="button"
+              onClick={onReplayPreloader}
+              className="w-full p-4 sm:p-5 flex items-center justify-between gap-4 text-left hover:bg-neutral-50 dark:hover:bg-neutral-800/50 transition cursor-pointer"
+            >
+              <div className="flex items-center gap-3">
+                <div className="h-8 w-8 rounded-lg bg-indigo-100 dark:bg-indigo-950/60 text-indigo-600 dark:text-indigo-400 flex items-center justify-center shrink-0">
+                  <Play className="h-4 w-4" />
+                </div>
+                <div>
+                  <span className="block text-sm font-bold text-neutral-800 dark:text-neutral-200">
+                    Preview Startup Experience
+                  </span>
+                  <span className="text-xs text-neutral-500 dark:text-neutral-400">
+                    Replay the 2.0s cinematic Himaleh alpine preloader & sequence
+                  </span>
+                </div>
+              </div>
+              <ChevronRight className="h-4 w-4 text-neutral-400" />
+            </button>
+          )}
 
           {/* Help & Guide */}
           <button

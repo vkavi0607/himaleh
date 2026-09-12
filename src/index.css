@@ -1,12 +1,180 @@
 @import "tailwindcss";
 
+@custom-variant dark (&:where(.dark, .dark *));
+
+:root {
+  --theme-background: #F8F9FA;
+  --theme-surface: #FFFFFF;
+  --theme-surface-elevated: #FFFFFF;
+  --theme-surface-secondary: #F1F3F5;
+  --theme-border: #E2E8F0;
+  --theme-border-subtle: #EDF2F7;
+  --theme-text-primary: #0F172A;
+  --theme-text-secondary: #475569;
+  --theme-text-muted: #94A3B8;
+  --theme-primary: #4F46E5;
+  --theme-primary-pressed: #4338CA;
+  --theme-primary-muted: #EEF2FF;
+  --theme-success: #10B981;
+  --theme-warning: #F59E0B;
+  --theme-error: #EF4444;
+  --theme-accountability: #DC2626;
+  --theme-input-background: #F8FAFC;
+  --theme-navigation-background: rgba(255, 255, 255, 0.94);
+  color-scheme: light;
+}
+
+.dark {
+  --theme-background: #0B0F19;
+  --theme-surface: #111827;
+  --theme-surface-elevated: #1F2937;
+  --theme-surface-secondary: #161F30;
+  --theme-border: #1E293B;
+  --theme-border-subtle: #172033;
+  --theme-text-primary: #F8FAFC;
+  --theme-text-secondary: #94A3B8;
+  --theme-text-muted: #64748B;
+  --theme-primary: #6366F1;
+  --theme-primary-pressed: #4F46E5;
+  --theme-primary-muted: rgba(99, 102, 241, 0.15);
+  --theme-success: #34D399;
+  --theme-warning: #FBBF24;
+  --theme-error: #F87171;
+  --theme-accountability: #EF4444;
+  --theme-input-background: #0D1424;
+  --theme-navigation-background: rgba(17, 24, 39, 0.94);
+  color-scheme: dark;
+}
+
 @layer base {
   body {
     font-family: 'Plus Jakarta Sans', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+    background-color: var(--theme-background);
+    color: var(--theme-text-primary);
   }
 
   h1, h2, h3, h4, h5, h6 {
     font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
+  }
+}
+
+/* =========================================================================
+   Himaleh Premium Startup Sequence & Transitions
+   ========================================================================= */
+
+@keyframes himalehLogoScaleIn {
+  0% {
+    opacity: 0;
+    transform: scale(0.88);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes himalehLogoFadeIn {
+  0% {
+    opacity: 0;
+  }
+  100% {
+    opacity: 1;
+  }
+}
+
+@keyframes himalehGlowBreathe {
+  0%, 100% {
+    opacity: 0.32;
+    transform: scale(0.96);
+  }
+  50% {
+    opacity: 0.72;
+    transform: scale(1.06);
+  }
+}
+
+@keyframes himalehTextRise {
+  0% {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes himalehTrailShimmer {
+  0% {
+    transform: translateX(-120%);
+  }
+  100% {
+    transform: translateX(250%);
+  }
+}
+
+@keyframes himalehDashboardEnter {
+  0% {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Choreographed Preloader Sequence Classes */
+.himaleh-preloader-crest {
+  animation: himalehLogoScaleIn 500ms cubic-bezier(0.16, 1, 0.3, 1) 200ms both;
+}
+
+.himaleh-preloader-glow {
+  animation: himalehGlowBreathe 3.2s ease-in-out 500ms infinite;
+}
+
+.himaleh-preloader-text {
+  animation: himalehTextRise 450ms cubic-bezier(0.16, 1, 0.3, 1) 800ms both;
+}
+
+.himaleh-preloader-bar {
+  animation: himalehTextRise 400ms cubic-bezier(0.16, 1, 0.3, 1) 1000ms both;
+}
+
+.himaleh-preloader-shimmer {
+  animation: himalehTrailShimmer 1.8s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+}
+
+.himaleh-dashboard-enter {
+  animation: himalehDashboardEnter 400ms cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+/* Reduced Motion Mode */
+@media (prefers-reduced-motion: reduce) {
+  .himaleh-preloader-crest {
+    animation: himalehLogoFadeIn 300ms ease-out 200ms both !important;
+    transform: none !important;
+  }
+  .himaleh-preloader-glow {
+    animation: none !important;
+    opacity: 0.35 !important;
+    transform: none !important;
+  }
+  .himaleh-preloader-text {
+    animation: himalehLogoFadeIn 300ms ease-out 800ms both !important;
+    transform: none !important;
+  }
+  .himaleh-preloader-bar {
+    animation: himalehLogoFadeIn 300ms ease-out 1000ms both !important;
+    transform: none !important;
+  }
+  .himaleh-preloader-shimmer {
+    animation: none !important;
+    transform: none !important;
+  }
+  .himaleh-dashboard-enter {
+    animation: himalehLogoFadeIn 250ms ease-out both !important;
+    transform: none !important;
   }
 }
 

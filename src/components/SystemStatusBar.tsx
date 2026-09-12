@@ -1,12 +1,16 @@
 import React, { useState, useEffect } from 'react';
 import { Wifi, Battery } from 'lucide-react';
+import { useTheme } from '../theme/ThemeContext';
 
 interface SystemStatusBarProps {
-  isDarkMode: boolean;
+  isDarkMode?: boolean;
   timeFormat?: '12h' | '24h';
 }
 
-export const SystemStatusBar: React.FC<SystemStatusBarProps> = ({ isDarkMode, timeFormat = '12h' }) => {
+export const SystemStatusBar: React.FC<SystemStatusBarProps> = ({ isDarkMode: propIsDark, timeFormat = '12h' }) => {
+  const { isDark: contextIsDark } = useTheme();
+  const isDark = propIsDark !== undefined ? propIsDark : contextIsDark;
+
   const [timeStr, setTimeStr] = useState<string>('');
   const [batteryLevel, setBatteryLevel] = useState<number>(96);
 
@@ -49,9 +53,9 @@ export const SystemStatusBar: React.FC<SystemStatusBarProps> = ({ isDarkMode, ti
     <div
       id="system-status-bar"
       className={`w-full z-50 select-none px-4 py-1.5 flex items-center justify-between text-xs font-semibold tracking-tight transition-colors duration-200 border-b md:hidden ${
-        isDarkMode
-          ? 'bg-neutral-950 text-neutral-100 border-neutral-800/80'
-          : 'bg-neutral-100 text-neutral-900 border-neutral-200/80'
+        isDark
+          ? 'bg-[#0B0F19] text-[#F8FAFC] border-[#1E293B]'
+          : 'bg-[#F8F9FA] text-[#0F172A] border-[#E2E8F0]'
       }`}
       style={{ paddingTop: 'max(env(safe-area-inset-top, 0px), 6px)' }}
     >
@@ -61,7 +65,7 @@ export const SystemStatusBar: React.FC<SystemStatusBarProps> = ({ isDarkMode, ti
       </div>
 
       {/* Center: Himaleh Summit mark */}
-      <div className="flex items-center gap-1 opacity-75">
+      <div className="flex items-center gap-1 opacity-80">
         <span className="text-[11px] font-bold tracking-wider font-display uppercase">HIMALEH</span>
       </div>
 
@@ -88,7 +92,7 @@ export const SystemStatusBar: React.FC<SystemStatusBarProps> = ({ isDarkMode, ti
             <Battery className="h-4 w-4 opacity-90" />
             <div
               className={`absolute left-[2.5px] top-[4.5px] h-[5px] rounded-[1px] ${
-                batteryLevel <= 20 ? 'bg-rose-500' : isDarkMode ? 'bg-emerald-400' : 'bg-emerald-600'
+                batteryLevel <= 20 ? 'bg-rose-500' : isDark ? 'bg-emerald-400' : 'bg-emerald-600'
               }`}
               style={{ width: `${Math.max(2, Math.min(8, (batteryLevel / 100) * 8))}px` }}
             />
@@ -98,3 +102,4 @@ export const SystemStatusBar: React.FC<SystemStatusBarProps> = ({ isDarkMode, ti
     </div>
   );
 };
+

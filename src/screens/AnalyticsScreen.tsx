@@ -29,7 +29,8 @@ import { AnalyticsGoalDetailModal } from '../components/analytics/AnalyticsGoalD
 import { AnalyticsRoutineDetailModal } from '../components/analytics/AnalyticsRoutineDetailModal';
 import { AnalyticsIncompleteModal } from '../components/analytics/AnalyticsIncompleteModal';
 import { HimalehLogo } from '../components/HimalehLogo';
-import { Star, Plus, Calendar, Compass } from 'lucide-react';
+import { Star, Plus, Calendar, Compass, Sun, Moon, Laptop, Clock } from 'lucide-react';
+import { useTheme } from '../theme/ThemeContext';
 
 interface AnalyticsScreenProps {
   streakStats: StreakStats;
@@ -62,6 +63,7 @@ export const AnalyticsScreen: React.FC<AnalyticsScreenProps> = ({
   onSelectRoutine,
   onTriggerCelebration,
 }) => {
+  const { themePreference, toggleTheme } = useTheme();
   const [selectedRange, setSelectedRange] = useState<TimeRangeKey>('7D');
   const [selectedDatePoint, setSelectedDatePoint] = useState<DayPerformancePoint | null>(null);
   const [selectedGoalPerf, setSelectedGoalPerf] = useState<GoalPerformanceData | null>(null);
@@ -172,37 +174,58 @@ export const AnalyticsScreen: React.FC<AnalyticsScreenProps> = ({
           </p>
         </div>
 
-        {/* Segmented Time Range Selector */}
-        <div
-          id="time-range-segmented-control"
-          className="inline-flex p-1 rounded-2xl bg-neutral-100 dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700/60 self-start md:self-auto shrink-0"
-        >
-          {(['7D', '30D', '90D', 'ALL'] as TimeRangeKey[]).map((rangeKey) => {
-            const isSelected = selectedRange === rangeKey;
-            const label =
-              rangeKey === '7D'
-                ? '7 Days'
-                : rangeKey === '30D'
-                ? '30 Days'
-                : rangeKey === '90D'
-                ? '3 Months'
-                : 'All Time';
+        {/* Controls: Segmented Time Range Selector + Quick Theme Switch */}
+        <div className="flex items-center gap-2 self-start md:self-auto shrink-0">
+          <div
+            id="time-range-segmented-control"
+            className="inline-flex p-1 rounded-2xl bg-neutral-100 dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700/60"
+          >
+            {(['7D', '30D', '90D', 'ALL'] as TimeRangeKey[]).map((rangeKey) => {
+              const isSelected = selectedRange === rangeKey;
+              const label =
+                rangeKey === '7D'
+                  ? '7 Days'
+                  : rangeKey === '30D'
+                  ? '30 Days'
+                  : rangeKey === '90D'
+                  ? '3 Months'
+                  : 'All Time';
 
-            return (
-              <button
-                key={rangeKey}
-                type="button"
-                onClick={() => setSelectedRange(rangeKey)}
-                className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${
-                  isSelected
-                    ? 'bg-white dark:bg-neutral-900 text-neutral-900 dark:text-neutral-50 shadow-xs'
-                    : 'text-neutral-500 hover:text-neutral-800 dark:hover:text-neutral-200'
-                }`}
-              >
-                {label}
-              </button>
-            );
-          })}
+              return (
+                <button
+                  key={rangeKey}
+                  type="button"
+                  onClick={() => setSelectedRange(rangeKey)}
+                  className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${
+                    isSelected
+                      ? 'bg-white dark:bg-neutral-900 text-neutral-900 dark:text-neutral-50 shadow-xs'
+                      : 'text-neutral-500 hover:text-neutral-800 dark:hover:text-neutral-200'
+                  }`}
+                >
+                  {label}
+                </button>
+              );
+            })}
+          </div>
+
+          <button
+            id="analytics-header-theme-toggle"
+            type="button"
+            onClick={toggleTheme}
+            className="p-2.5 rounded-2xl bg-neutral-100 dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700/60 text-neutral-600 dark:text-neutral-300 hover:text-neutral-900 dark:hover:text-white hover:bg-neutral-200/60 dark:hover:bg-neutral-700 transition cursor-pointer"
+            title={`Theme: ${themePreference === 'auto_time' ? 'AUTO BY TIME' : themePreference.toUpperCase()} (Click to cycle Light/Dark/System/Auto Time)`}
+            aria-label={`Toggle theme: currently ${themePreference}`}
+          >
+            {themePreference === 'light' ? (
+              <Sun className="h-4 w-4 text-amber-500" />
+            ) : themePreference === 'dark' ? (
+              <Moon className="h-4 w-4 text-indigo-400" />
+            ) : themePreference === 'auto_time' ? (
+              <Clock className="h-4 w-4 text-amber-600 dark:text-amber-400" />
+            ) : (
+              <Laptop className="h-4 w-4 text-neutral-500 dark:text-neutral-400" />
+            )}
+          </button>
         </div>
       </div>
 

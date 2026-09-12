@@ -145,7 +145,9 @@ export interface UserSettings {
   reduceMotion: boolean;
   strictAccountability: boolean;
   restDayFrequency: number; // e.g., 1 day/week
-  theme: 'light' | 'dark' | 'system';
+  theme: 'light' | 'dark' | 'system' | 'auto_time';
+  automaticLightTime?: string; // HH:mm e.g. "06:00"
+  automaticDarkTime?: string; // HH:mm e.g. "18:00"
   accentStyle?: 'emerald' | 'gold' | 'glacier' | 'obsidian';
   layoutMode?: 'compact' | 'comfortable';
   autoEnableRoutineReminder?: boolean;

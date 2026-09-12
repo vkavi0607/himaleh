@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import {
   ScreenNav,
   Routine,
@@ -34,9 +34,11 @@ import { SystemStatusBar } from './components/SystemStatusBar';
 import { AppLockModal } from './components/AppLockModal';
 import { SoundService } from './services/SoundService';
 import { NotificationService } from './services/NotificationService';
+import { useTheme } from './theme/ThemeContext';
 import { Bell } from 'lucide-react';
 
 export const App: React.FC = () => {
+  const { isDark, themePreference, setThemePreference } = useTheme();
   const [currentScreen, setCurrentScreen] = useState<ScreenNav>('dashboard');
   const [currentDate, setCurrentDate] = useState<string>(() =>
     ProgressCalculationEngine.getTodayStr()
@@ -73,8 +75,9 @@ export const App: React.FC = () => {
   const [isPreloading, setIsPreloading] = useState(true);
   const [isLocked, setIsLocked] = useState(() => Boolean(settings.appLockEnabled && settings.appLockPin));
 
-  // Initialize data on mount
-  const reloadData = () => {
+  // Comprehensive real application initialization
+  const initializeApplication = useCallback(async () => {
+    // 1. Initialize authentic data from local vault
     const initialized = StorageService.initializeIfEmpty();
     setGoals(initialized.goals);
     setRoutines(initialized.routines);
@@ -82,26 +85,41 @@ export const App: React.FC = () => {
     setReflections(initialized.reflections);
     setSettings(initialized.settings);
 
-    if (initialized.settings.isDarkMode) {
-      document.documentElement.classList.add('dark');
-    } else {
-      document.documentElement.classList.remove('dark');
+    // 2. Restore saved theme if changed
+    if (initialized.settings.theme && initialized.settings.theme !== themePreference) {
+      setThemePreference(initialized.settings.theme);
     }
-  };
 
-  useEffect(() => {
-    reloadData();
-    NotificationService.initServiceWorker();
+    // 3. Initialize background service worker & notification schedules
+    try {
+      NotificationService.initServiceWorker();
+      if (initialized.routines.length > 0) {
+        NotificationService.rescheduleAll(initialized.routines, initialized.settings);
+      }
+    } catch (notifErr) {
+      console.warn('Non-blocking notification initialization note:', notifErr);
+    }
+
+    // 4. Pre-warm analytics and streak calculation engines
+    try {
+      ConsistencyEngine.calculateStreaks(
+        initialized.routines,
+        initialized.logs,
+        ProgressCalculationEngine.getTodayStr()
+      );
+    } catch {
+      // safe fallback
+    }
+  }, [themePreference, setThemePreference]);
+
+  const handlePreloaderComplete = useCallback(() => {
+    setIsPreloading(false);
   }, []);
 
-  // Sync settings theme
-  useEffect(() => {
-    if (settings.isDarkMode) {
-      document.documentElement.classList.add('dark');
-    } else {
-      document.documentElement.classList.remove('dark');
-    }
-  }, [settings.isDarkMode]);
+  // Synchronize data on manual reloads (e.g. backup restore)
+  const reloadData = useCallback(() => {
+    initializeApplication();
+  }, [initializeApplication]);
 
   // Synchronize OS notifications with routines & settings
   useEffect(() => {
@@ -537,19 +555,20 @@ export const App: React.FC = () => {
   const handleUpdateSettings = (newSettings: UserSettings) => {
     setSettings(newSettings);
     StorageService.saveSettings(newSettings);
+    if (newSettings.theme && newSettings.theme !== themePreference) {
+      setThemePreference(newSettings.theme);
+    }
   };
 
   return (
-    <div className="min-h-screen bg-neutral-50 dark:bg-neutral-950 text-neutral-900 dark:text-neutral-50 selection:bg-emerald-500 selection:text-white">
+    <div className="min-h-screen bg-[var(--theme-background)] text-[var(--theme-text-primary)] selection:bg-indigo-500 selection:text-white transition-colors duration-200">
       {/* Preloader on startup */}
       {isPreloading && (
         <Preloader
-          onInitialize={async () => {
-            reloadData();
-          }}
-          onComplete={() => setIsPreloading(false)}
+          onInitialize={initializeApplication}
+          onComplete={handlePreloaderComplete}
           reduceMotion={settings.reduceMotion}
-          isDarkMode={settings.isDarkMode}
+          isDarkMode={isDark}
         />
       )}
 
@@ -563,13 +582,13 @@ export const App: React.FC = () => {
       )}
 
       {/* System Status Bar for mobile views */}
-      <SystemStatusBar isDarkMode={settings.isDarkMode} timeFormat={settings.timeFormat} />
+      <SystemStatusBar isDarkMode={isDark} timeFormat={settings.timeFormat} />
 
       {/* Navigation Bars */}
       <Navigation currentScreen={currentScreen} onNavigate={setCurrentScreen} />
 
       {/* Main Screen Content */}
-      <main className="max-w-5xl mx-auto px-4 sm:px-6 py-6 pb-24 md:pb-12">
+      <main className={`max-w-5xl mx-auto px-4 sm:px-6 py-6 pb-24 md:pb-12 ${!isPreloading ? 'himaleh-dashboard-enter' : ''}`}>
         {currentScreen === 'dashboard' && (
           <DashboardScreen
             currentDate={currentDate}
@@ -651,6 +670,7 @@ export const App: React.FC = () => {
             settings={settings}
             onUpdateSettings={handleUpdateSettings}
             onDataReload={reloadData}
+            onReplayPreloader={() => setIsPreloading(true)}
           />
         )}
       </main>

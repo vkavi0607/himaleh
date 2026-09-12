@@ -9,6 +9,104 @@
  * - Alpine Snow Facets: #FFFFFF, #F8FAFC, #E2E8F0 (Clarity, focus, pristine execution)
  */
 
+/**
+ * HIMALEH OFFICIAL BRAND IDENTITY & DESIGN TOKENS
+ * Derived directly from the official Himaleh Mountain Summit Logo.
+ * 
+ * Centralized Design Token System supporting seamless, real-time Light and Dark themes.
+ */
+
+export interface HimalehThemeTokens {
+  background: string;
+  surface: string;
+  surfaceElevated: string;
+  surfaceSecondary: string;
+  border: string;
+  borderSubtle: string;
+  textPrimary: string;
+  textSecondary: string;
+  textMuted: string;
+  primary: string;
+  primaryPressed: string;
+  primaryMuted: string;
+  success: string;
+  warning: string;
+  error: string;
+  accountability: string;
+  inputBackground: string;
+  navigationBackground: string;
+  statusBarBackground: string;
+  statusBarText: string;
+}
+
+/**
+ * Premium, clean Himaleh Light Theme:
+ * - warm / refined off-white background
+ * - white elevated cards
+ * - refined indigo/violet primary
+ * - subtle borders
+ * - dark readable typography
+ * - controlled success/warning/error colors
+ */
+export const lightThemeTokens: HimalehThemeTokens = {
+  background: '#F8F9FA',
+  surface: '#FFFFFF',
+  surfaceElevated: '#FFFFFF',
+  surfaceSecondary: '#F1F3F5',
+  border: '#E2E8F0',
+  borderSubtle: '#EDF2F7',
+  textPrimary: '#0F172A',
+  textSecondary: '#475569',
+  textMuted: '#94A3B8',
+  primary: '#4F46E5', // Refined indigo
+  primaryPressed: '#4338CA',
+  primaryMuted: '#EEF2FF',
+  success: '#10B981', // Emerald
+  warning: '#F59E0B', // Amber
+  error: '#EF4444', // Rose
+  accountability: '#DC2626', // Summit Red
+  inputBackground: '#F8FAFC',
+  navigationBackground: 'rgba(255, 255, 255, 0.94)',
+  statusBarBackground: '#F8F9FA',
+  statusBarText: '#0F172A',
+};
+
+/**
+ * Premium cinematic Himaleh Dark Theme:
+ * - deep navy/charcoal background
+ * - layered dark surfaces (no harsh pure-black everywhere)
+ * - refined indigo/violet primary
+ * - subtle borders
+ * - readable white/light typography
+ * - controlled accent glow
+ */
+export const darkThemeTokens: HimalehThemeTokens = {
+  background: '#0B0F19',
+  surface: '#111827',
+  surfaceElevated: '#1F2937',
+  surfaceSecondary: '#161F30',
+  border: '#1E293B',
+  borderSubtle: '#172033',
+  textPrimary: '#F8FAFC',
+  textSecondary: '#94A3B8',
+  textMuted: '#64748B',
+  primary: '#6366F1', // Refined violet/indigo
+  primaryPressed: '#4F46E5',
+  primaryMuted: 'rgba(99, 102, 241, 0.15)',
+  success: '#34D399',
+  warning: '#FBBF24',
+  error: '#F87171',
+  accountability: '#EF4444',
+  inputBackground: '#0D1424',
+  navigationBackground: 'rgba(17, 24, 39, 0.94)',
+  statusBarBackground: '#0B0F19',
+  statusBarText: '#F8FAFC',
+};
+
+export const getThemeTokens = (isDark: boolean): HimalehThemeTokens => {
+  return isDark ? darkThemeTokens : lightThemeTokens;
+};
+
 export const brandTokens = {
   // Brand Archetype
   name: 'Himaleh',
@@ -77,28 +175,8 @@ export const brandTokens = {
 
   // Surfaces and Containers
   surfaces: {
-    light: {
-      canvas: '#F8FAFC',
-      card: '#FFFFFF',
-      elevated: '#FFFFFF',
-      muted: '#F1F5F9',
-      border: '#E2E8F0',
-      borderHover: '#CBD5E1',
-      textPrimary: '#0F172A',
-      textSecondary: '#475569',
-      textMuted: '#94A3B8',
-    },
-    dark: {
-      canvas: '#0B1120',
-      card: '#0F172A',
-      elevated: '#1E293B',
-      muted: '#131D31',
-      border: '#1E293B',
-      borderHover: '#334155',
-      textPrimary: '#F8FAFC',
-      textSecondary: '#94A3B8',
-      textMuted: '#64748B',
-    },
+    light: lightThemeTokens,
+    dark: darkThemeTokens,
   },
 
   // Typography Settings
