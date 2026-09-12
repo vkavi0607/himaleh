@@ -598,6 +598,8 @@ export const App: React.FC = () => {
             dashboardState={dashboardState}
             settings={settings}
             goals={goals}
+            routines={routines}
+            goalProgressMap={goalProgressMap}
             reflection={currentReflection}
             onToggleRoutine={handleToggleRoutine}
             onSkipRoutine={handleSkipRoutine}
@@ -611,6 +613,8 @@ export const App: React.FC = () => {
               setRoutineModalState({ isOpen: true, initialRoutine: null })
             }
             onOpenReflection={() => setReflectionModalOpen(true)}
+            onSelectGoal={(goal) => setSelectedGoalDetails(goal)}
+            onNavigateToGoals={() => setCurrentScreen('goals')}
           />
         )}
 

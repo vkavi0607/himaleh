@@ -1,44 +1,72 @@
 import React, { useState } from 'react';
-import { Routine, Goal, DayLedger } from '../types';
+import { Routine, Goal, DayLedger, DailyProgressResult, GoalProgressResult } from '../types';
 import { HimalehLogo } from './HimalehLogo';
-import { Flame, CheckCircle, Clock, ChevronRight, Sparkles, Target, Layers } from 'lucide-react';
+import { Flame, CheckCircle, Clock, ChevronRight, Sparkles, Target, Layers, Plus } from 'lucide-react';
 import { useTheme } from '../theme/ThemeContext';
 
-interface HimalehWidgetsProps {
+export interface HimalehWidgetsProps {
   routines: Routine[];
   goals: Goal[];
   todayLedger?: DayLedger;
+  progress?: DailyProgressResult;
+  goalProgressMap?: Record<number, GoalProgressResult>;
   currentStreak: number;
   consistencyScore: number;
   onToggleRoutine?: (routineId: number) => void;
   onSelectGoal?: (goal: Goal) => void;
+  onNavigateToRoutines?: () => void;
+  onNavigateToGoals?: () => void;
 }
 
 export const HimalehWidgets: React.FC<HimalehWidgetsProps> = ({
   routines,
   goals,
   todayLedger,
+  progress,
+  goalProgressMap,
   currentStreak,
   consistencyScore,
   onToggleRoutine,
   onSelectGoal,
+  onNavigateToRoutines,
+  onNavigateToGoals,
 }) => {
   const { isDark } = useTheme();
   const [activeWidgetTab, setActiveWidgetTab] = useState<'compact' | 'goal' | 'glance'>('compact');
 
-  const completedCount = todayLedger?.completedRoutineIds?.length || 0;
-  const totalRoutines = routines.length;
-  const progressPct = totalRoutines > 0 ? Math.round((completedCount / totalRoutines) * 100) : 0;
+  const completedCount = progress ? progress.completedCount : (todayLedger?.completedRoutineIds?.length || 0);
+  const totalRoutines = progress ? progress.totalPlanned : routines.length;
+  const progressPct = progress
+    ? Math.round(progress.completionPercentage)
+    : totalRoutines > 0
+    ? Math.round((completedCount / totalRoutines) * 100)
+    : 0;
 
   // Next pending routine
-  const nextRoutine = routines.find(
-    (r) => !todayLedger?.completedRoutineIds?.includes(r.id) && !todayLedger?.skippedRoutineIds?.includes(r.id)
-  );
+  const nextRoutine = progress
+    ? progress.plannedRoutines.find(
+        (r) => !progress.completedRoutineIds.has(r.id) && !progress.skippedRoutineIds.has(r.id)
+      )
+    : routines.find(
+        (r) =>
+          !todayLedger?.completedRoutineIds?.includes(r.id) &&
+          !todayLedger?.skippedRoutineIds?.includes(r.id)
+      );
 
   // Top focus goal
   const primaryGoal = goals[0];
-  const goalProgressPct = primaryGoal && primaryGoal.targetValue > 0
-    ? Math.min(100, Math.round((primaryGoal.currentValue / primaryGoal.targetValue) * 100))
+  const goalProgressPct = primaryGoal
+    ? goalProgressMap && goalProgressMap[primaryGoal.id]
+      ? Math.round(goalProgressMap[primaryGoal.id].percentage)
+      : primaryGoal.targetValue > 0
+      ? Math.min(100, Math.round((primaryGoal.currentValue / primaryGoal.targetValue) * 100))
+      : 0
+    : 0;
+
+  const goalCurrentVal = primaryGoal
+    ? goalProgressMap && goalProgressMap[primaryGoal.id]
+      ? goalProgressMap[primaryGoal.id].currentValue
+      : primaryGoal.currentValue
     : 0;
 
   return (
@@ -97,77 +125,97 @@ export const HimalehWidgets: React.FC<HimalehWidgetsProps> = ({
               </div>
             </div>
 
-            {/* Main Metrics Layout */}
-            <div className="grid grid-cols-2 gap-3 mb-3.5">
-              {/* Progress Card */}
-              <div className="p-3 rounded-2xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200/80 dark:border-slate-700/50">
-                <span className="text-[10px] font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider block mb-1">
-                  Today's Ascent
-                </span>
-                <div className="flex items-baseline gap-1.5">
-                  <span className="text-2xl font-black text-slate-900 dark:text-white font-mono">
-                    {progressPct}%
-                  </span>
-                  <span className="text-xs text-slate-500 dark:text-slate-400">
-                    ({completedCount}/{totalRoutines})
-                  </span>
-                </div>
-                {/* Trail Progress Bar */}
-                <div className="h-1.5 w-full bg-slate-200 dark:bg-slate-700/60 rounded-full mt-2 overflow-hidden">
-                  <div
-                    className="h-full bg-gradient-to-r from-amber-600 via-amber-500 to-yellow-400 rounded-full transition-all"
-                    style={{ width: `${progressPct}%` }}
-                  />
-                </div>
-              </div>
-
-              {/* Consistency Score Card */}
-              <div className="p-3 rounded-2xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200/80 dark:border-slate-700/50">
-                <span className="text-[10px] font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider block mb-1">
-                  Consistency Rate
-                </span>
-                <div className="flex items-baseline gap-1.5">
-                  <span className="text-2xl font-black text-amber-600 dark:text-amber-400 font-mono">
-                    {consistencyScore}%
-                  </span>
-                </div>
-                <span className="text-[10px] text-slate-500 dark:text-slate-400 flex items-center gap-1 mt-2">
-                  <Sparkles className="h-2.5 w-2.5 text-amber-500 dark:text-amber-400" />
-                  Calculated Trail Score
-                </span>
-              </div>
-            </div>
-
-            {/* Next Routine Quick View */}
-            {nextRoutine ? (
-              <div className="flex items-center justify-between p-2.5 rounded-xl bg-slate-50 dark:bg-slate-800/40 border border-slate-200/80 dark:border-slate-700/40">
-                <div className="flex items-center gap-2 min-w-0">
-                  <Clock className="h-3.5 w-3.5 text-amber-500 dark:text-amber-400 shrink-0" />
-                  <div className="min-w-0">
-                    <span className="text-xs font-bold text-slate-800 dark:text-slate-200 block truncate">
-                      {nextRoutine.name}
-                    </span>
-                    <span className="text-[10px] text-slate-500 dark:text-slate-400">
-                      {`${String(nextRoutine.timeHour).padStart(2, '0')}:${String(nextRoutine.timeMinute).padStart(2, '0')}`}
-                    </span>
-                  </div>
-                </div>
-                {onToggleRoutine && (
+            {/* Main Content Layout or Empty State */}
+            {totalRoutines === 0 ? (
+              <div className="text-center py-6 text-xs text-slate-500 dark:text-slate-400 space-y-2">
+                <Clock className="h-7 w-7 mx-auto text-slate-400 dark:text-slate-600" />
+                <p>No routines scheduled for today.</p>
+                {onNavigateToRoutines && (
                   <button
-                    id={`widget-complete-${nextRoutine.id}`}
                     type="button"
-                    onClick={() => onToggleRoutine(nextRoutine.id)}
-                    className="px-2.5 py-1 rounded-lg bg-amber-500 hover:bg-amber-400 text-slate-950 text-[11px] font-extrabold flex items-center gap-1 transition cursor-pointer shrink-0"
+                    onClick={onNavigateToRoutines}
+                    className="inline-flex items-center gap-1 px-3 py-1.5 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 text-xs font-bold transition cursor-pointer"
                   >
-                    <CheckCircle className="h-3 w-3" />
-                    <span>Done</span>
+                    <Plus className="h-3 w-3" />
+                    <span>Plan Routine</span>
                   </button>
                 )}
               </div>
             ) : (
-              <div className="text-center py-2 text-xs text-amber-600 dark:text-amber-300/80 font-medium">
-                ✨ All routines for today completed! Peak reached.
-              </div>
+              <>
+                {/* Main Metrics Layout */}
+                <div className="grid grid-cols-2 gap-3 mb-3.5">
+                  {/* Progress Card */}
+                  <div className="p-3 rounded-2xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200/80 dark:border-slate-700/50">
+                    <span className="text-[10px] font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider block mb-1">
+                      Today's Ascent
+                    </span>
+                    <div className="flex items-baseline gap-1.5">
+                      <span className="text-2xl font-black text-slate-900 dark:text-white font-mono">
+                        {progressPct}%
+                      </span>
+                      <span className="text-xs text-slate-500 dark:text-slate-400">
+                        ({completedCount}/{totalRoutines})
+                      </span>
+                    </div>
+                    {/* Trail Progress Bar */}
+                    <div className="h-1.5 w-full bg-slate-200 dark:bg-slate-700/60 rounded-full mt-2 overflow-hidden">
+                      <div
+                        className="h-full bg-gradient-to-r from-amber-600 via-amber-500 to-yellow-400 rounded-full transition-all"
+                        style={{ width: `${progressPct}%` }}
+                      />
+                    </div>
+                  </div>
+
+                  {/* Consistency Score Card */}
+                  <div className="p-3 rounded-2xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200/80 dark:border-slate-700/50">
+                    <span className="text-[10px] font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider block mb-1">
+                      Consistency Rate
+                    </span>
+                    <div className="flex items-baseline gap-1.5">
+                      <span className="text-2xl font-black text-amber-600 dark:text-amber-400 font-mono">
+                        {consistencyScore}%
+                      </span>
+                    </div>
+                    <span className="text-[10px] text-slate-500 dark:text-slate-400 flex items-center gap-1 mt-2">
+                      <Sparkles className="h-2.5 w-2.5 text-amber-500 dark:text-amber-400" />
+                      Calculated Trail Score
+                    </span>
+                  </div>
+                </div>
+
+                {/* Next Routine Quick View */}
+                {nextRoutine ? (
+                  <div className="flex items-center justify-between p-2.5 rounded-xl bg-slate-50 dark:bg-slate-800/40 border border-slate-200/80 dark:border-slate-700/40">
+                    <div className="flex items-center gap-2 min-w-0">
+                      <Clock className="h-3.5 w-3.5 text-amber-500 dark:text-amber-400 shrink-0" />
+                      <div className="min-w-0">
+                        <span className="text-xs font-bold text-slate-800 dark:text-slate-200 block truncate">
+                          {nextRoutine.name}
+                        </span>
+                        <span className="text-[10px] text-slate-500 dark:text-slate-400">
+                          {`${String(nextRoutine.timeHour).padStart(2, '0')}:${String(nextRoutine.timeMinute).padStart(2, '0')}`}
+                        </span>
+                      </div>
+                    </div>
+                    {onToggleRoutine && (
+                      <button
+                        id={`widget-complete-${nextRoutine.id}`}
+                        type="button"
+                        onClick={() => onToggleRoutine(nextRoutine.id)}
+                        className="px-2.5 py-1 rounded-lg bg-amber-500 hover:bg-amber-400 text-slate-950 text-[11px] font-extrabold flex items-center gap-1 transition cursor-pointer shrink-0"
+                      >
+                        <CheckCircle className="h-3 w-3" />
+                        <span>Done</span>
+                      </button>
+                    )}
+                  </div>
+                ) : (
+                  <div className="text-center py-2 text-xs text-amber-600 dark:text-amber-300/80 font-medium">
+                    ✨ All routines for today completed! Peak reached.
+                  </div>
+                )}
+              </>
             )}
           </div>
         )}
@@ -222,7 +270,7 @@ export const HimalehWidgets: React.FC<HimalehWidgetsProps> = ({
                 </div>
 
                 <div className="flex items-center justify-between text-[11px] text-slate-500 dark:text-slate-400 pt-1">
-                  <span>Current: {primaryGoal.currentValue} {primaryGoal.unit}</span>
+                  <span>Current: {goalCurrentVal} {primaryGoal.unit}</span>
                   {onSelectGoal && (
                     <button
                       type="button"
@@ -236,9 +284,19 @@ export const HimalehWidgets: React.FC<HimalehWidgetsProps> = ({
                 </div>
               </div>
             ) : (
-              <div className="py-6 text-center text-xs text-slate-500 dark:text-slate-400">
-                <Target className="h-8 w-8 mx-auto mb-2 text-slate-400 dark:text-slate-600" />
-                No active goals created yet. Set your first summit target.
+              <div className="py-6 text-center text-xs text-slate-500 dark:text-slate-400 space-y-2">
+                <Target className="h-8 w-8 mx-auto text-slate-400 dark:text-slate-600" />
+                <p>No active goals created yet. Set your first summit target.</p>
+                {onNavigateToGoals && (
+                  <button
+                    type="button"
+                    onClick={onNavigateToGoals}
+                    className="inline-flex items-center gap-1 px-3 py-1.5 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 text-xs font-bold transition cursor-pointer"
+                  >
+                    <Plus className="h-3 w-3" />
+                    <span>Create Goal</span>
+                  </button>
+                )}
               </div>
             )}
           </div>

@@ -32,6 +32,7 @@ import {
   FileText,
 } from 'lucide-react';
 import { FullReflectionModal } from '../components/FullReflectionModal';
+import { HimalehWidgets } from '../components/HimalehWidgets';
 
 interface DashboardScreenProps {
   currentDate: string;
@@ -41,6 +42,7 @@ interface DashboardScreenProps {
   dashboardState: DashboardState;
   settings: UserSettings;
   goals: Goal[];
+  routines?: Routine[];
   reflection: DailyReflection | null;
   onToggleRoutine: (routine: Routine) => void;
   onSkipRoutine: (routine: Routine, reason: string) => void;
@@ -50,6 +52,9 @@ interface DashboardScreenProps {
   onOpenQuickAdd: () => void;
   onOpenAddRoutine: () => void;
   onOpenReflection: () => void;
+  onSelectGoal?: (goal: Goal) => void;
+  onNavigateToGoals?: () => void;
+  goalProgressMap?: Record<number, ReturnType<typeof ProgressCalculationEngine.calculateGoalProgress>>;
 }
 
 export const DashboardScreen: React.FC<DashboardScreenProps> = ({
@@ -60,6 +65,7 @@ export const DashboardScreen: React.FC<DashboardScreenProps> = ({
   dashboardState,
   settings,
   goals,
+  routines = [],
   reflection,
   onToggleRoutine,
   onSkipRoutine,
@@ -69,6 +75,9 @@ export const DashboardScreen: React.FC<DashboardScreenProps> = ({
   onOpenQuickAdd,
   onOpenAddRoutine,
   onOpenReflection,
+  onSelectGoal,
+  onNavigateToGoals,
+  goalProgressMap,
 }) => {
   const [activeMenuRoutineId, setActiveMenuRoutineId] = useState<number | null>(null);
   const [isReflectionExpanded, setIsReflectionExpanded] = useState<boolean>(true);
@@ -661,6 +670,28 @@ export const DashboardScreen: React.FC<DashboardScreenProps> = ({
             )}
           </>
         )}
+      </div>
+
+      {/* 7. Himaleh System Widgets (Compact, Goal, Glance) */}
+      <div
+        id="dashboard-widgets-section"
+        className="bg-white dark:bg-neutral-900 rounded-3xl border border-neutral-200/80 dark:border-neutral-800 p-5 shadow-xs"
+      >
+        <HimalehWidgets
+          routines={routines}
+          goals={goals}
+          progress={progress}
+          goalProgressMap={goalProgressMap}
+          currentStreak={streakStats.currentStreak}
+          consistencyScore={streakStats.weeklyConsistencyPercentage}
+          onToggleRoutine={(routineId) => {
+            const target = routines.find((r) => r.id === routineId);
+            if (target) onToggleRoutine(target);
+          }}
+          onSelectGoal={onSelectGoal}
+          onNavigateToRoutines={onOpenAddRoutine}
+          onNavigateToGoals={onNavigateToGoals}
+        />
       </div>
     </div>
   );
